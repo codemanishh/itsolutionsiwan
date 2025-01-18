@@ -7,6 +7,7 @@ import Team from "./components/team/Team"
 import Pricing from "./components/pricing/Pricing"
 import Blog from "./components/blog/Blog"
 import Contact from "./components/contact/Contact"
+import Careers from "./components/Careers/Careers"
 import Footer from "./components/common/footer/Footer"
 import Home from "./components/home/Home"
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route exact path='/pricing' component={Pricing} />
           <Route exact path='/journal' component={Blog} />
           <Route exact path='/contact' component={Contact} />
+          <Route exact path='/careers' component={Careers} />
         </Switch>
         <Footer />
       </Router>
