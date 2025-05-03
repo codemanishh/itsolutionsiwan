@@ -323,9 +323,22 @@ export default function CoursesTab() {
   const handleEditComputerCourseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (computerCourseToEdit) {
+      // Format the learning points properly before submitting
+      const formattedLearningPoints = computerCourseToEdit.learningPoints.map(point => ({
+        id: point.id,
+        point: typeof point.point === 'string' ? point.point : String(point.point),
+        sortOrder: point.sortOrder,
+        courseId: point.courseId
+      }));
+      
+      const formattedData = {
+        ...computerCourseToEdit,
+        learningPoints: formattedLearningPoints
+      };
+      
       editComputerCourseMutation.mutate({
         id: computerCourseToEdit.id,
-        data: computerCourseToEdit
+        data: formattedData
       });
     }
   };
@@ -333,9 +346,22 @@ export default function CoursesTab() {
   const handleEditTypingCourseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (typingCourseToEdit) {
+      // Format the learning points properly before submitting
+      const formattedLearningPoints = typingCourseToEdit.learningPoints.map(point => ({
+        id: point.id,
+        point: typeof point.point === 'string' ? point.point : String(point.point),
+        sortOrder: point.sortOrder,
+        courseId: point.courseId
+      }));
+      
+      const formattedData = {
+        ...typingCourseToEdit,
+        learningPoints: formattedLearningPoints
+      };
+      
       editTypingCourseMutation.mutate({
         id: typingCourseToEdit.id,
-        data: typingCourseToEdit
+        data: formattedData
       });
     }
   };
@@ -434,7 +460,11 @@ export default function CoursesTab() {
   const updateEditComputerLearningPoint = (index: number, value: string) => {
     if (computerCourseToEdit) {
       const newLearningPoints = [...computerCourseToEdit.learningPoints];
-      newLearningPoints[index] = { ...newLearningPoints[index], point: value };
+      // Make sure point property is a string
+      newLearningPoints[index] = { 
+        ...newLearningPoints[index], 
+        point: value 
+      };
       setComputerCourseToEdit({
         ...computerCourseToEdit,
         learningPoints: newLearningPoints
@@ -463,7 +493,11 @@ export default function CoursesTab() {
   const updateEditTypingLearningPoint = (index: number, value: string) => {
     if (typingCourseToEdit) {
       const newLearningPoints = [...typingCourseToEdit.learningPoints];
-      newLearningPoints[index] = { ...newLearningPoints[index], point: value };
+      // Make sure point property is a string
+      newLearningPoints[index] = { 
+        ...newLearningPoints[index], 
+        point: value 
+      };
       setTypingCourseToEdit({
         ...typingCourseToEdit,
         learningPoints: newLearningPoints
