@@ -25,9 +25,13 @@ export default function Admin() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchMessages = async () => {
       try {
+        if (!isMounted) return;
         setLoading(true);
+        
         const response = await fetch("/api/admin/messages");
         
         if (!response.ok) {
@@ -35,17 +39,32 @@ export default function Admin() {
         }
         
         const data = await response.json();
-        setMessages(data);
-        setError("");
-      } catch (err) {
-        setError("Failed to load messages. Please try again later.");
+        console.log("API response:", data);
+        
+        if (!isMounted) return;
+        
+        if (Array.isArray(data)) {
+          setMessages(data);
+          setError("");
+        } else {
+          throw new Error("Invalid data format received");
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        setError(`Failed to load messages: ${err.message || "Unknown error"}`);
         console.error("Error fetching messages:", err);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchMessages();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -79,13 +98,15 @@ export default function Admin() {
                   {messages.map((message) => (
                     <TableRow key={message.id}>
                       <TableCell>
-                        {format(new Date(message.createdAt), "PPP p")}
+                        {message.createdAt ? 
+                          format(new Date(message.createdAt), "PPP p") : 
+                          "Unknown date"}
                       </TableCell>
-                      <TableCell>{message.name}</TableCell>
-                      <TableCell>{message.phone}</TableCell>
-                      <TableCell>{message.email}</TableCell>
-                      <TableCell>{message.course}</TableCell>
-                      <TableCell className="max-w-xs truncate">{message.message}</TableCell>
+                      <TableCell>{message.name || "N/A"}</TableCell>
+                      <TableCell>{message.phone || "N/A"}</TableCell>
+                      <TableCell>{message.email || "N/A"}</TableCell>
+                      <TableCell>{message.course || "N/A"}</TableCell>
+                      <TableCell className="max-w-xs truncate">{message.message || "N/A"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
