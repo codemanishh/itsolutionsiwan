@@ -367,11 +367,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Insert learning points if provided
       if (Array.isArray(learningPoints) && learningPoints.length > 0) {
-        const learningPointsData = learningPoints.map((point, index) => ({
-          courseId: newCourse.id,
-          point,
-          sortOrder: index + 1
-        }));
+        const learningPointsData = learningPoints.map((point, index) => {
+          // Extract just the string value from point, handling various data formats
+          const pointText = typeof point === 'string' 
+            ? point 
+            : typeof point === 'object' && point !== null
+              ? typeof point.point === 'string'
+                ? point.point
+                : typeof point.point === 'object' && point.point !== null
+                  ? JSON.stringify(point.point)
+                  : String(point)
+              : String(point);
+          
+          return {
+            courseId: newCourse.id,
+            point: pointText,
+            sortOrder: index + 1
+          };
+        });
         
         await db.insert(computerLearningPoints).values(learningPointsData);
       }
@@ -452,11 +465,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Insert new learning points
         if (learningPoints.length > 0) {
-          const learningPointsData = learningPoints.map((point, index) => ({
-            courseId: id,
-            point,
-            sortOrder: index + 1
-          }));
+          const learningPointsData = learningPoints.map((point, index) => {
+            // Extract just the string value from point, handling various data formats
+            const pointText = typeof point === 'string' 
+              ? point 
+              : typeof point === 'object' && point !== null
+                ? typeof point.point === 'string'
+                  ? point.point
+                  : typeof point.point === 'object' && point.point !== null
+                    ? JSON.stringify(point.point)
+                    : String(point)
+                : String(point);
+            
+            return {
+              courseId: id,
+              point: pointText,
+              sortOrder: index + 1
+            };
+          });
           
           await db.insert(computerLearningPoints).values(learningPointsData);
         }
@@ -611,11 +637,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Insert learning points if provided
       if (Array.isArray(learningPoints) && learningPoints.length > 0) {
-        const learningPointsData = learningPoints.map((point, index) => ({
-          courseId: newCourse.id,
-          point,
-          sortOrder: index + 1
-        }));
+        const learningPointsData = learningPoints.map((point, index) => {
+          // Extract just the string value from point, handling various data formats
+          const pointText = typeof point === 'string' 
+            ? point 
+            : typeof point === 'object' && point !== null
+              ? typeof point.point === 'string'
+                ? point.point
+                : typeof point.point === 'object' && point.point !== null
+                  ? JSON.stringify(point.point)
+                  : String(point)
+              : String(point);
+          
+          return {
+            courseId: newCourse.id,
+            point: pointText,
+            sortOrder: index + 1
+          };
+        });
         
         await db.insert(typingLearningPoints).values(learningPointsData);
       }
@@ -695,11 +734,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         // Insert new learning points
         if (learningPoints.length > 0) {
-          const learningPointsData = learningPoints.map((point, index) => ({
-            courseId: id,
-            point,
-            sortOrder: index + 1
-          }));
+          const learningPointsData = learningPoints.map((point, index) => {
+            // Extract just the string value from point, handling various data formats
+            const pointText = typeof point === 'string' 
+              ? point 
+              : typeof point === 'object' && point !== null
+                ? typeof point.point === 'string'
+                  ? point.point
+                  : typeof point.point === 'object' && point.point !== null
+                    ? JSON.stringify(point.point)
+                    : String(point)
+                : String(point);
+            
+            return {
+              courseId: id,
+              point: pointText,
+              sortOrder: index + 1
+            };
+          });
           
           await db.insert(typingLearningPoints).values(learningPointsData);
         }
