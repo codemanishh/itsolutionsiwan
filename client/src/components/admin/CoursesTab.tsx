@@ -1009,7 +1009,7 @@ export default function CoursesTab() {
                           <div key={index} className="flex items-center gap-2">
                             <Input
                               placeholder={`Learning point ${index + 1}`}
-                              value={point.point}
+                              value={typeof point.point === 'string' ? point.point : JSON.stringify(point.point)}
                               onChange={(e) => updateEditComputerLearningPoint(index, e.target.value)}
                               required
                             />
@@ -1121,7 +1121,7 @@ export default function CoursesTab() {
                           <div key={index} className="flex items-center gap-2">
                             <Input
                               placeholder={`Learning point ${index + 1}`}
-                              value={point.point}
+                              value={typeof point.point === 'string' ? point.point : JSON.stringify(point.point)}
                               onChange={(e) => updateEditTypingLearningPoint(index, e.target.value)}
                               required
                             />
