@@ -73,11 +73,37 @@ interface Certificate {
   percentageScore: number;
 }
 
+interface ComputerCourseType {
+  id: number;
+  title: string;
+  fullName: string;
+  duration: string;
+  price: string;
+  description: string;
+  learningPoints: { id: number; point: string; sortOrder: number; courseId: number; }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface TypingCourseType {
+  id: number;
+  title: string;
+  duration: string;
+  price: string;
+  description: string;
+  learningPoints: { id: number; point: string; sortOrder: number; courseId: number; }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function Admin() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("messages");
+  
+  // For new course management
+  const [activeCourseTab, setActiveCourseTab] = useState<string>("computer");
   const [certificateToEdit, setCertificateToEdit] = useState<Certificate | null>(null);
   const [certificateIdToDelete, setCertificateIdToDelete] = useState<number | null>(null);
   const [expandedMessageIds, setExpandedMessageIds] = useState<number[]>([]);
