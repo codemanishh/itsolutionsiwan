@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { 
   Card, 
   CardContent, 
@@ -7,7 +6,21 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
+
+// Safe date formatting function
+const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return "Unknown date";
+  
+  try {
+    const date = new Date(dateString);
+    return isValid(date) ? format(date, "PPP p") : "Invalid date";
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "Date error";
+  }
+};
 
 interface ContactMessage {
   id: number;
@@ -20,52 +33,15 @@ interface ContactMessage {
 }
 
 export default function Admin() {
-  const [messages, setMessages] = useState<ContactMessage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    const fetchMessages = async () => {
-      try {
-        if (!isMounted) return;
-        setLoading(true);
-        
-        const response = await fetch("/api/admin/messages");
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch messages");
-        }
-        
-        const data = await response.json();
-        console.log("API response:", data);
-        
-        if (!isMounted) return;
-        
-        if (Array.isArray(data)) {
-          setMessages(data);
-          setError("");
-        } else {
-          throw new Error("Invalid data format received");
-        }
-      } catch (err: any) {
-        if (!isMounted) return;
-        setError(`Failed to load messages: ${err.message || "Unknown error"}`);
-        console.error("Error fetching messages:", err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchMessages();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const { 
+    data: messages = [], 
+    isLoading,
+    error,
+    isError
+  } = useQuery<ContactMessage[]>({
+    queryKey: ['/api/admin/messages'],
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -75,10 +51,12 @@ export default function Admin() {
           <CardDescription>View all contact form submissions</CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {isLoading ? (
             <div className="text-center py-8">Loading messages...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-red-500">{error}</div>
+          ) : isError ? (
+            <div className="text-center py-8 text-red-500">
+              Failed to load messages. Please try again later.
+            </div>
           ) : messages.length === 0 ? (
             <div className="text-center py-8">No messages found.</div>
           ) : (
