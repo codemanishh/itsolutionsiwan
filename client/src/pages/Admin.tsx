@@ -107,6 +107,15 @@ export default function Admin() {
   const [certificateToEdit, setCertificateToEdit] = useState<Certificate | null>(null);
   const [certificateIdToDelete, setCertificateIdToDelete] = useState<number | null>(null);
   const [expandedMessageIds, setExpandedMessageIds] = useState<number[]>([]);
+  
+  // Course management state
+  const [isCourseDialogOpen, setIsCourseDialogOpen] = useState(false);
+  const [isEditCourseDialogOpen, setIsEditCourseDialogOpen] = useState(false);
+  const [isDeleteCourseDialogOpen, setIsDeleteCourseDialogOpen] = useState(false);
+  const [courseIdToDelete, setCourseIdToDelete] = useState<number | null>(null);
+  const [computerCourseToEdit, setComputerCourseToEdit] = useState<ComputerCourseType | null>(null);
+  const [typingCourseToEdit, setTypingCourseToEdit] = useState<TypingCourseType | null>(null);
+  
   const { toast } = useToast();
   
   // Form state for new certificate
@@ -118,6 +127,25 @@ export default function Admin() {
     certificateName: "",
     issueDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
     percentageScore: 70,
+  });
+  
+  // Form state for new computer course
+  const [computerCourseData, setComputerCourseData] = useState({
+    title: "",
+    fullName: "",
+    duration: "",
+    price: "",
+    description: "",
+    learningPoints: [] as {point: string}[],
+  });
+  
+  // Form state for new typing course
+  const [typingCourseData, setTypingCourseData] = useState({
+    title: "",
+    duration: "",
+    price: "",
+    description: "",
+    learningPoints: [] as {point: string}[],
   });
 
   // Contact messages query
@@ -149,6 +177,36 @@ export default function Admin() {
       return res.json();
     },
     enabled: activeTab === "certificates",
+  });
+  
+  // Computer courses query
+  const {
+    data: computerCourses = [],
+    isLoading: computerCoursesLoading,
+    isError: computerCoursesError
+  } = useQuery<ComputerCourseType[]>({
+    queryKey: ['/api/computer-courses'],
+    queryFn: async () => {
+      const res = await fetch('/api/computer-courses', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch computer courses');
+      return res.json();
+    },
+    enabled: activeTab === "courses" && activeCourseTab === "computer",
+  });
+  
+  // Typing courses query
+  const {
+    data: typingCourses = [],
+    isLoading: typingCoursesLoading,
+    isError: typingCoursesError
+  } = useQuery<TypingCourseType[]>({
+    queryKey: ['/api/typing-courses'],
+    queryFn: async () => {
+      const res = await fetch('/api/typing-courses', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch typing courses');
+      return res.json();
+    },
+    enabled: activeTab === "courses" && activeCourseTab === "typing",
   });
 
   // Add certificate mutation
@@ -351,6 +409,161 @@ export default function Admin() {
     }
   });
   
+  // Add computer course mutation
+  const addComputerCourseMutation = useMutation({
+    mutationFn: async (data: typeof computerCourseData) => {
+      const res = await apiRequest("POST", "/api/computer-courses", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/computer-courses'] });
+      setIsCourseDialogOpen(false);
+      setComputerCourseData({
+        title: "",
+        fullName: "",
+        duration: "",
+        price: "",
+        description: "",
+        learningPoints: [],
+      });
+      toast({
+        title: "Success",
+        description: "Computer course added successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add computer course: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Edit computer course mutation
+  const editComputerCourseMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: Partial<ComputerCourseType> }) => {
+      const res = await apiRequest("PUT", `/api/computer-courses/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/computer-courses'] });
+      setIsEditCourseDialogOpen(false);
+      setComputerCourseToEdit(null);
+      toast({
+        title: "Success",
+        description: "Computer course updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update computer course: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Delete computer course mutation
+  const deleteComputerCourseMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/computer-courses/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/computer-courses'] });
+      setIsDeleteCourseDialogOpen(false);
+      setCourseIdToDelete(null);
+      toast({
+        title: "Success",
+        description: "Computer course deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete computer course: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Add typing course mutation
+  const addTypingCourseMutation = useMutation({
+    mutationFn: async (data: typeof typingCourseData) => {
+      const res = await apiRequest("POST", "/api/typing-courses", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/typing-courses'] });
+      setIsCourseDialogOpen(false);
+      setTypingCourseData({
+        title: "",
+        duration: "",
+        price: "",
+        description: "",
+        learningPoints: [],
+      });
+      toast({
+        title: "Success",
+        description: "Typing course added successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add typing course: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Edit typing course mutation
+  const editTypingCourseMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: Partial<TypingCourseType> }) => {
+      const res = await apiRequest("PUT", `/api/typing-courses/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/typing-courses'] });
+      setIsEditCourseDialogOpen(false);
+      setTypingCourseToEdit(null);
+      toast({
+        title: "Success",
+        description: "Typing course updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update typing course: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Delete typing course mutation
+  const deleteTypingCourseMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/typing-courses/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/typing-courses'] });
+      setIsDeleteCourseDialogOpen(false);
+      setCourseIdToDelete(null);
+      toast({
+        title: "Success",
+        description: "Typing course deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete typing course: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
   const toggleMessageStatus = (id: number, currentStatus: string) => {
     const newStatus = currentStatus === 'open' ? 'closed' : 'open';
     updateMessageStatusMutation.mutate({ id, status: newStatus });
@@ -363,6 +576,204 @@ export default function Admin() {
         ? prev.filter(messageId => messageId !== id) 
         : [...prev, id]
     );
+  };
+  
+  // Course handlers
+  const handleComputerCourseInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setComputerCourseData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  const handleTypingCourseInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setTypingCourseData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  const handleComputerCourseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    addComputerCourseMutation.mutate(computerCourseData);
+  };
+  
+  const handleTypingCourseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    addTypingCourseMutation.mutate(typingCourseData);
+  };
+  
+  const handleEditComputerCourse = (course: ComputerCourseType) => {
+    setComputerCourseToEdit(course);
+    setIsEditCourseDialogOpen(true);
+  };
+  
+  const handleEditTypingCourse = (course: TypingCourseType) => {
+    setTypingCourseToEdit(course);
+    setIsEditCourseDialogOpen(true);
+  };
+  
+  const handleDeleteComputerCourse = (id: number) => {
+    setCourseIdToDelete(id);
+    setIsDeleteCourseDialogOpen(true);
+  };
+  
+  const handleDeleteTypingCourse = (id: number) => {
+    setCourseIdToDelete(id);
+    setIsDeleteCourseDialogOpen(true);
+  };
+  
+  const handleEditComputerCourseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (computerCourseToEdit) {
+      editComputerCourseMutation.mutate({
+        id: computerCourseToEdit.id,
+        data: computerCourseToEdit
+      });
+    }
+  };
+  
+  const handleEditTypingCourseSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typingCourseToEdit) {
+      editTypingCourseMutation.mutate({
+        id: typingCourseToEdit.id,
+        data: typingCourseToEdit
+      });
+    }
+  };
+  
+  const handleEditComputerCourseInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (computerCourseToEdit) {
+      setComputerCourseToEdit({
+        ...computerCourseToEdit,
+        [name]: value
+      });
+    }
+  };
+  
+  const handleEditTypingCourseInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (typingCourseToEdit) {
+      setTypingCourseToEdit({
+        ...typingCourseToEdit,
+        [name]: value
+      });
+    }
+  };
+  
+  // Learning points handlers for computer courses
+  const addComputerLearningPoint = () => {
+    setComputerCourseData(prev => ({
+      ...prev,
+      learningPoints: [...prev.learningPoints, { point: "" }]
+    }));
+  };
+  
+  const removeComputerLearningPoint = (index: number) => {
+    setComputerCourseData(prev => ({
+      ...prev,
+      learningPoints: prev.learningPoints.filter((_, i) => i !== index)
+    }));
+  };
+  
+  const updateComputerLearningPoint = (index: number, value: string) => {
+    setComputerCourseData(prev => {
+      const newLearningPoints = [...prev.learningPoints];
+      newLearningPoints[index] = { point: value };
+      return {
+        ...prev,
+        learningPoints: newLearningPoints
+      };
+    });
+  };
+  
+  // Learning points handlers for typing courses
+  const addTypingLearningPoint = () => {
+    setTypingCourseData(prev => ({
+      ...prev,
+      learningPoints: [...prev.learningPoints, { point: "" }]
+    }));
+  };
+  
+  const removeTypingLearningPoint = (index: number) => {
+    setTypingCourseData(prev => ({
+      ...prev,
+      learningPoints: prev.learningPoints.filter((_, i) => i !== index)
+    }));
+  };
+  
+  const updateTypingLearningPoint = (index: number, value: string) => {
+    setTypingCourseData(prev => {
+      const newLearningPoints = [...prev.learningPoints];
+      newLearningPoints[index] = { point: value };
+      return {
+        ...prev,
+        learningPoints: newLearningPoints
+      };
+    });
+  };
+  
+  // Learning points handlers for edit mode
+  const addEditComputerLearningPoint = () => {
+    if (computerCourseToEdit) {
+      setComputerCourseToEdit({
+        ...computerCourseToEdit,
+        learningPoints: [...computerCourseToEdit.learningPoints, { id: 0, point: "", sortOrder: computerCourseToEdit.learningPoints.length, courseId: computerCourseToEdit.id }]
+      });
+    }
+  };
+  
+  const removeEditComputerLearningPoint = (index: number) => {
+    if (computerCourseToEdit) {
+      setComputerCourseToEdit({
+        ...computerCourseToEdit,
+        learningPoints: computerCourseToEdit.learningPoints.filter((_, i) => i !== index)
+      });
+    }
+  };
+  
+  const updateEditComputerLearningPoint = (index: number, value: string) => {
+    if (computerCourseToEdit) {
+      const newLearningPoints = [...computerCourseToEdit.learningPoints];
+      newLearningPoints[index] = { ...newLearningPoints[index], point: value };
+      setComputerCourseToEdit({
+        ...computerCourseToEdit,
+        learningPoints: newLearningPoints
+      });
+    }
+  };
+  
+  const addEditTypingLearningPoint = () => {
+    if (typingCourseToEdit) {
+      setTypingCourseToEdit({
+        ...typingCourseToEdit,
+        learningPoints: [...typingCourseToEdit.learningPoints, { id: 0, point: "", sortOrder: typingCourseToEdit.learningPoints.length, courseId: typingCourseToEdit.id }]
+      });
+    }
+  };
+  
+  const removeEditTypingLearningPoint = (index: number) => {
+    if (typingCourseToEdit) {
+      setTypingCourseToEdit({
+        ...typingCourseToEdit,
+        learningPoints: typingCourseToEdit.learningPoints.filter((_, i) => i !== index)
+      });
+    }
+  };
+  
+  const updateEditTypingLearningPoint = (index: number, value: string) => {
+    if (typingCourseToEdit) {
+      const newLearningPoints = [...typingCourseToEdit.learningPoints];
+      newLearningPoints[index] = { ...newLearningPoints[index], point: value };
+      setTypingCourseToEdit({
+        ...typingCourseToEdit,
+        learningPoints: newLearningPoints
+      });
+    }
   };
 
   return (
@@ -383,6 +794,7 @@ export default function Admin() {
         <TabsList className="mb-4">
           <TabsTrigger value="messages">Contact Messages</TabsTrigger>
           <TabsTrigger value="certificates">Certificates</TabsTrigger>
+          <TabsTrigger value="courses">Courses</TabsTrigger>
         </TabsList>
         
         {/* Contact Messages Tab */}
