@@ -83,8 +83,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         address = COALESCE(${validatedData.address}, address),
         aadhar_number = COALESCE(${validatedData.aadharNumber}, aadhar_number),
         certificate_name = COALESCE(${validatedData.certificateName}, certificate_name),
-        issue_date = COALESCE(${validatedData.issueDate}::date, issue_date),
-        percentage_score = COALESCE(${validatedData.percentageScore}::integer, percentage_score)
+        issue_date = COALESCE(${validatedData.issueDate}, issue_date),
+        percentage_score = COALESCE(${validatedData.percentageScore}, percentage_score)
         WHERE id = ${id}
       `);
       

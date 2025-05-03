@@ -15,6 +15,13 @@ export default function CertificateVerification() {
 
   const { data: certificate, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: [`/api/certificates/${certificateNumber}`],
+    queryFn: async () => {
+      if (!certificateNumber) return null;
+      const res = await fetch(`/api/certificates/${certificateNumber}`, { credentials: 'include' });
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error('Failed to verify certificate');
+      return res.json();
+    },
     enabled: false,
   });
 
