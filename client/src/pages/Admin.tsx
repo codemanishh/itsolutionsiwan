@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CoursesTab from "@/components/admin/CoursesTab";
 import {
   Dialog,
   DialogContent,
@@ -1215,6 +1216,11 @@ export default function Admin() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Courses Tab */}
+        <TabsContent value="courses">
+          <CoursesTab />
         </TabsContent>
       </Tabs>
     </div>
