@@ -54,9 +54,16 @@ export default function TypingCourses() {
                   <div className="mb-4">
                     <h5 className="font-medium mb-2">What you'll learn:</h5>
                     <ul className="list-disc pl-5 text-neutral-dark space-y-1">
-                      {course.learningPoints && course.learningPoints.map((pointObj) => (
-                        <li key={pointObj.id}>{pointObj.point}</li>
-                      ))}
+                      {course.learningPoints && course.learningPoints.map((pointObj) => {
+                        // Handle case where point might be a string or an object with a point property
+                        const pointText = typeof pointObj.point === 'string' 
+                          ? pointObj.point 
+                          : typeof pointObj.point === 'object' && pointObj.point !== null
+                            ? JSON.stringify(pointObj.point)
+                            : String(pointObj.point);
+                            
+                        return <li key={pointObj.id}>{pointText}</li>;
+                      })}
                     </ul>
                   </div>
                   

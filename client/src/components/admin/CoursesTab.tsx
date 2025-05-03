@@ -301,12 +301,42 @@ export default function CoursesTab() {
   };
   
   const handleEditComputerCourse = (course: ComputerCourseType) => {
-    setComputerCourseToEdit(course);
+    // Format learning points to ensure they are in the correct format
+    const formattedLearningPoints = course.learningPoints.map(point => ({
+      id: point.id,
+      point: typeof point.point === 'string' 
+        ? point.point 
+        : typeof point.point === 'object' && point.point !== null
+          ? JSON.stringify(point.point)
+          : String(point.point),
+      sortOrder: point.sortOrder,
+      courseId: point.courseId
+    }));
+    
+    setComputerCourseToEdit({
+      ...course,
+      learningPoints: formattedLearningPoints
+    });
     setIsEditCourseDialogOpen(true);
   };
   
   const handleEditTypingCourse = (course: TypingCourseType) => {
-    setTypingCourseToEdit(course);
+    // Format learning points to ensure they are in the correct format
+    const formattedLearningPoints = course.learningPoints.map(point => ({
+      id: point.id,
+      point: typeof point.point === 'string' 
+        ? point.point 
+        : typeof point.point === 'object' && point.point !== null
+          ? JSON.stringify(point.point)
+          : String(point.point),
+      sortOrder: point.sortOrder,
+      courseId: point.courseId
+    }));
+    
+    setTypingCourseToEdit({
+      ...course,
+      learningPoints: formattedLearningPoints
+    });
     setIsEditCourseDialogOpen(true);
   };
   
