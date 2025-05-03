@@ -253,7 +253,23 @@ export default function Admin() {
   };
 
   const handleEditCertificate = (certificate: Certificate) => {
-    setCertificateToEdit(certificate);
+    console.log('Certificate to edit:', certificate);
+    
+    // Make sure all properties are properly mapped from DB column names to our model
+    const formattedCertificate = {
+      ...certificate,
+      id: certificate.id,
+      certificateNumber: certificate.certificateNumber || certificate.certificate_number,
+      name: certificate.name,
+      address: certificate.address,
+      aadharNumber: certificate.aadharNumber || certificate.aadhar_number,
+      certificateName: certificate.certificateName || certificate.certificate_name,
+      issueDate: certificate.issueDate || certificate.issue_date,
+      percentageScore: certificate.percentageScore || certificate.percentage_score
+    };
+    
+    console.log('Formatted certificate:', formattedCertificate);
+    setCertificateToEdit(formattedCertificate);
     setIsEditDialogOpen(true);
   };
 
