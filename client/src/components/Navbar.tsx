@@ -18,6 +18,17 @@ export default function Navbar() {
   // Check if user is already logged in
   const { data: user } = useQuery<User | null>({
     queryKey: ['/api/user'],
+    queryFn: async () => {
+      try {
+        const res = await fetch('/api/user', { credentials: 'include' });
+        if (res.status === 401) return null;
+        if (!res.ok) throw new Error('Failed to fetch user');
+        return res.json();
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        return null;
+      }
+    },
     retry: false,
     refetchOnWindowFocus: false,
     gcTime: 0,

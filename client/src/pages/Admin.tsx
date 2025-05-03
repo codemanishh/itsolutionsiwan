@@ -98,6 +98,11 @@ export default function Admin() {
     isError: messagesError
   } = useQuery<ContactMessage[]>({
     queryKey: ['/api/admin/messages'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/messages', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch messages');
+      return res.json();
+    },
     refetchInterval: 30000, // Refetch every 30 seconds
     enabled: activeTab === "messages",
   });
@@ -109,6 +114,11 @@ export default function Admin() {
     isError: certificatesError
   } = useQuery<Certificate[]>({
     queryKey: ['/api/certificates'],
+    queryFn: async () => {
+      const res = await fetch('/api/certificates', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to fetch certificates');
+      return res.json();
+    },
     enabled: activeTab === "certificates",
   });
 
