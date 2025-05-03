@@ -289,7 +289,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      return res.status(200).json(courses);
+      // Transform learning points to clean up the data
+      const transformedCourses = courses.map(course => ({
+        ...course,
+        learningPoints: course.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      }));
+      
+      return res.status(200).json(transformedCourses);
     } catch (error) {
       console.error('Error fetching computer courses:', error);
       return res.status(500).json({ message: 'Internal server error' });
@@ -317,7 +328,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Course not found' });
       }
       
-      return res.status(200).json(course);
+      // Transform learning points to ensure clean data
+      const transformedCourse = {
+        ...course,
+        learningPoints: course.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      };
+      
+      return res.status(200).json(transformedCourse);
     } catch (error) {
       console.error('Error fetching computer course:', error);
       return res.status(500).json({ message: 'Internal server error' });
@@ -364,7 +386,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      return res.status(201).json(createdCourse);
+      // Transform learning points to ensure clean data
+      const transformedCourse = createdCourse ? {
+        ...createdCourse,
+        learningPoints: createdCourse.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      } : null;
+      
+      return res.status(201).json(transformedCourse);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ errors: error.errors });
@@ -439,7 +472,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      return res.status(200).json(finalCourse);
+      // Transform learning points to ensure clean data
+      const transformedCourse = finalCourse ? {
+        ...finalCourse,
+        learningPoints: finalCourse.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      } : null;
+      
+      return res.status(200).json(transformedCourse);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ errors: error.errors });
@@ -490,7 +534,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      return res.status(200).json(courses);
+      // Transform learning points to clean up the data
+      const transformedCourses = courses.map(course => ({
+        ...course,
+        learningPoints: course.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      }));
+      
+      return res.status(200).json(transformedCourses);
     } catch (error) {
       console.error('Error fetching typing courses:', error);
       return res.status(500).json({ message: 'Internal server error' });
@@ -518,7 +573,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Course not found' });
       }
       
-      return res.status(200).json(course);
+      // Transform learning points to ensure clean data
+      const transformedCourse = {
+        ...course,
+        learningPoints: course.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      };
+      
+      return res.status(200).json(transformedCourse);
     } catch (error) {
       console.error('Error fetching typing course:', error);
       return res.status(500).json({ message: 'Internal server error' });
