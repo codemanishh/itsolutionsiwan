@@ -1,12 +1,27 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useMobile } from "@/hooks/use-mobile";
-import { Menu } from "lucide-react";
+import { Menu, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+
+interface User {
+  id: number;
+  username: string;
+}
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useMobile();
+  const [location] = useLocation();
+  
+  // Check if user is already logged in
+  const { data: user } = useQuery<User | null>({
+    queryKey: ['/api/user'],
+    retry: false,
+    refetchOnWindowFocus: false,
+    gcTime: 0,
+  });
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -41,14 +56,33 @@ export default function Navbar() {
             <a href="#contact" className="text-neutral-darkest hover:text-primary font-medium">Contact</a>
           </nav>
           
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="md:hidden text-neutral-darkest" 
-            onClick={toggleMenu}
-          >
-            <Menu />
-          </Button>
+          <div className="flex items-center space-x-2">
+            {/* Admin button/link */}
+            {user ? (
+              <Link href="/admin">
+                <Button variant="outline" size="sm" className="hidden md:flex items-center">
+                  <Lock className="mr-1 h-4 w-4" />
+                  Admin Panel
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/auth">
+                <Button variant="outline" size="sm" className="hidden md:flex items-center">
+                  <Lock className="mr-1 h-4 w-4" />
+                  Admin Login
+                </Button>
+              </Link>
+            )}
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden text-neutral-darkest" 
+              onClick={toggleMenu}
+            >
+              <Menu />
+            </Button>
+          </div>
         </div>
         
         {isMenuOpen && (
@@ -59,6 +93,17 @@ export default function Navbar() {
               <a href="#verify" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Verify Certificate</a>
               <a href="#about" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>About Us</a>
               <a href="#contact" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Contact</a>
+              
+              {/* Mobile admin link */}
+              {user ? (
+                <Link href="/admin" className="text-neutral-darkest hover:text-primary font-medium flex items-center" onClick={() => setIsMenuOpen(false)}>
+                  <Lock className="mr-2 h-4 w-4" /> Admin Panel
+                </Link>
+              ) : (
+                <Link href="/auth" className="text-neutral-darkest hover:text-primary font-medium flex items-center" onClick={() => setIsMenuOpen(false)}>
+                  <Lock className="mr-2 h-4 w-4" /> Admin Login
+                </Link>
+              )}
             </nav>
           </div>
         )}

@@ -63,6 +63,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: 'Internal server error' });
     }
   });
+  
+  // Update a certificate (protected)
+  app.put('/api/certificates/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+
+      const validatedData = certificatesInsertSchema.partial().parse(req.body);
+      
+      // Perform the update
+      await db.execute(sql`
+        UPDATE certificates SET 
+        certificate_number = COALESCE(${validatedData.certificateNumber}, certificate_number),
+        name = COALESCE(${validatedData.name}, name),
+        address = COALESCE(${validatedData.address}, address),
+        aadhar_number = COALESCE(${validatedData.aadharNumber}, aadhar_number),
+        certificate_name = COALESCE(${validatedData.certificateName}, certificate_name),
+        issue_date = COALESCE(${validatedData.issueDate}::date, issue_date),
+        percentage_score = COALESCE(${validatedData.percentageScore}::integer, percentage_score)
+        WHERE id = ${id}
+      `);
+      
+      // Get the updated certificate
+      const result = await db.execute(sql`SELECT * FROM certificates WHERE id = ${id}`);
+      const updatedCertificate = result.rows?.[0];
+      
+      if (!updatedCertificate) {
+        return res.status(404).json({ message: 'Certificate not found after update' });
+      }
+      
+      return res.status(200).json(updatedCertificate);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error updating certificate:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // Delete a certificate (protected)
+  app.delete('/api/certificates/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+      
+      // Check if certificate exists
+      const checkResult = await db.execute(sql`SELECT id FROM certificates WHERE id = ${id}`);
+      if (!checkResult.rows?.length) {
+        return res.status(404).json({ message: 'Certificate not found' });
+      }
+      
+      // Delete the certificate
+      await db.execute(sql`DELETE FROM certificates WHERE id = ${id}`);
+      
+      return res.status(200).json({ message: 'Certificate deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting certificate:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
   // API routes for contact messages
   app.post('/api/contact', async (req, res) => {
