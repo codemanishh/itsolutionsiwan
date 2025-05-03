@@ -55,9 +55,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route to get all contact messages
   app.get('/api/admin/messages', async (req, res) => {
     try {
-      const messages = await db.execute(
-        `SELECT * FROM contact_messages ORDER BY created_at DESC`
+      const result = await db.execute(
+        `SELECT id, name, phone, email, course, message, created_at as "createdAt" 
+         FROM contact_messages 
+         ORDER BY created_at DESC`
       );
+      
+      // Extract rows from the result
+      const messages = result.rows || [];
       return res.status(200).json(messages);
     } catch (error) {
       console.error('Error fetching contact messages:', error);
