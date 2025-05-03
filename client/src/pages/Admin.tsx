@@ -76,9 +76,7 @@ export default function Admin() {
                   {messages.map((message) => (
                     <TableRow key={message.id}>
                       <TableCell>
-                        {message.createdAt ? 
-                          format(new Date(message.createdAt), "PPP p") : 
-                          "Unknown date"}
+                        {formatDate(message.createdAt)}
                       </TableCell>
                       <TableCell>{message.name || "N/A"}</TableCell>
                       <TableCell>{message.phone || "N/A"}</TableCell>
