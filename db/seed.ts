@@ -1,12 +1,13 @@
 import { db } from "./index";
-import * as schema from "@shared/schema";
+import { certificates } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 async function seed() {
   try {
     console.log("Seeding database...");
 
-    // Sample certificates
-    const certificates = [
+    // Direct insert of certificates (faster and more reliable approach)
+    await db.insert(certificates).values([
       {
         certificateNumber: "ADCA-2023-1234",
         name: "Rahul Kumar",
@@ -52,24 +53,9 @@ async function seed() {
         issueDate: new Date("2023-08-15"),
         percentageScore: 75,
       }
-    ];
-
-    // Insert certificates if they don't exist
-    for (const certificate of certificates) {
-      const existingCertificate = await db.query.certificates.findFirst({
-        where: (certificates) => 
-          schema.eq(certificates.certificateNumber, certificate.certificateNumber)
-      });
-
-      if (!existingCertificate) {
-        await db.insert(schema.certificates).values(certificate);
-        console.log(`Certificate ${certificate.certificateNumber} seeded.`);
-      } else {
-        console.log(`Certificate ${certificate.certificateNumber} already exists, skipping.`);
-      }
-    }
-
-    console.log("Database seeded successfully!");
+    ]).onConflictDoNothing({ target: certificates.certificateNumber });
+    
+    console.log("Certificates seeded successfully!");
   } catch (error) {
     console.error("Error seeding database:", error);
   }
