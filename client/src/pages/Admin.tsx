@@ -489,6 +489,145 @@ export default function Admin() {
                           </TableCell>
                         </TableRow>
                       ))}
+                      
+                      {/* Edit Certificate Dialog */}
+                      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                        <DialogContent className="sm:max-w-[500px]">
+                          {certificateToEdit && (
+                            <form onSubmit={handleEditSubmit}>
+                              <DialogHeader>
+                                <DialogTitle>Edit Certificate</DialogTitle>
+                                <DialogDescription>
+                                  Update certificate details
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="edit-certificateNumber">Certificate Number</Label>
+                                    <Input
+                                      id="edit-certificateNumber"
+                                      name="certificateNumber"
+                                      placeholder="e.g., ADCA-2023-1234"
+                                      value={certificateToEdit.certificateNumber}
+                                      onChange={handleEditInputChange}
+                                      required
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="edit-certificateName">Certificate Name</Label>
+                                    <Input
+                                      id="edit-certificateName"
+                                      name="certificateName"
+                                      placeholder="e.g., ADCA, DCA, etc."
+                                      value={certificateToEdit.certificateName}
+                                      onChange={handleEditInputChange}
+                                      required
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="edit-name">Student Name</Label>
+                                  <Input
+                                    id="edit-name"
+                                    name="name"
+                                    placeholder="Enter student's full name"
+                                    value={certificateToEdit.name}
+                                    onChange={handleEditInputChange}
+                                    required
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="edit-address">Address</Label>
+                                  <Input
+                                    id="edit-address"
+                                    name="address"
+                                    placeholder="Enter student's address"
+                                    value={certificateToEdit.address}
+                                    onChange={handleEditInputChange}
+                                    required
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="edit-aadharNumber">Aadhar Number</Label>
+                                  <Input
+                                    id="edit-aadharNumber"
+                                    name="aadharNumber"
+                                    placeholder="Enter 12-digit Aadhar number"
+                                    value={certificateToEdit.aadharNumber}
+                                    onChange={handleEditInputChange}
+                                    required
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="edit-issueDate">Issue Date</Label>
+                                    <Input
+                                      id="edit-issueDate"
+                                      name="issueDate"
+                                      type="date"
+                                      value={certificateToEdit.issueDate ? 
+                                        (certificateToEdit.issueDate.includes('T') ? 
+                                          certificateToEdit.issueDate.split('T')[0] : 
+                                          certificateToEdit.issueDate) : 
+                                        new Date().toISOString().split('T')[0]}
+                                      onChange={handleEditInputChange}
+                                      required
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="edit-percentageScore">Percentage Score</Label>
+                                    <Input
+                                      id="edit-percentageScore"
+                                      name="percentageScore"
+                                      type="number"
+                                      min="1"
+                                      max="100"
+                                      value={certificateToEdit.percentageScore}
+                                      onChange={handleEditInputChange}
+                                      required
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <Button 
+                                  type="submit" 
+                                  disabled={editCertificateMutation.isPending}
+                                >
+                                  {editCertificateMutation.isPending ? "Updating..." : "Update Certificate"}
+                                </Button>
+                              </DialogFooter>
+                            </form>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+                      
+                      {/* Delete Confirmation Dialog */}
+                      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the certificate.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => {
+                                if (certificateIdToDelete !== null) {
+                                  deleteCertificateMutation.mutate(certificateIdToDelete);
+                                }
+                              }}
+                              disabled={deleteCertificateMutation.isPending}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              {deleteCertificateMutation.isPending ? "Deleting..." : "Delete"}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </TableBody>
                   </Table>
                 </div>
