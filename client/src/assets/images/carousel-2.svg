@@ -1,0 +1,8 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" fill="#0891b2" />
+  <text x="400" y="100" font-family="Arial" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle">DCA, ADCA</text>
+  <text x="400" y="200" font-family="Arial" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle">करे अपने बच्चों की सपनों साकार</text>
+  <text x="400" y="250" font-family="Arial" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle">6 महीने में बने आत्मनिर्भर कम्प्यूटर एक्सपर्ट</text>
+  <rect x="300" y="300" width="200" height="50" rx="10" fill="#e5e7eb" />
+  <text x="400" y="335" font-family="Arial" font-size="24" fill="#0891b2" text-anchor="middle" dominant-baseline="middle">Join Now</text>
+</svg>

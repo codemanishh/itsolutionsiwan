@@ -1,0 +1,11 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" fill="#dc2626" />
+  <text x="400" y="80" font-family="Arial" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle">I.T. SOLUTION</text>
+  <text x="400" y="130" font-family="Arial" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle">आर्य समाज कम्प्यूटर डिग्री कॉलेज मोड़, सीवान</text>
+  <text x="400" y="180" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">Office Time: 8 AM To 4 PM</text>
+  <text x="400" y="220" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">Mob: 7295956246, 9279501441</text>
+  
+  <text x="400" y="300" font-family="Arial" font-size="28" fill="white" text-anchor="middle" dominant-baseline="middle">18 सालों से संचालित सरस्वान</text>
+  <rect x="280" y="320" width="240" height="60" rx="10" fill="white" />
+  <text x="400" y="360" font-family="Arial" font-size="24" fill="#dc2626" text-anchor="middle" dominant-baseline="middle">Register Now</text>
+</svg>

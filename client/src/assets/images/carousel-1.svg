@@ -1,0 +1,7 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" fill="#4f46e5" />
+  <text x="400" y="200" font-family="Arial" font-size="32" fill="white" text-anchor="middle" dominant-baseline="middle">कम्प्यूटर शिक्षण</text>
+  <text x="400" y="250" font-family="Arial" font-size="24" fill="white" text-anchor="middle" dominant-baseline="middle">Reg. - Under by Govt. of India</text>
+  <rect x="50" y="300" width="700" height="50" rx="10" fill="#e5e7eb" />
+  <text x="400" y="335" font-family="Arial" font-size="24" fill="#4f46e5" text-anchor="middle" dominant-baseline="middle">ADMISSION OPEN</text>
+</svg>

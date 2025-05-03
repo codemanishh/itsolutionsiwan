@@ -1,0 +1,17 @@
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" fill="#16a34a" />
+  <text x="400" y="80" font-family="Arial" font-size="36" fill="white" text-anchor="middle" dominant-baseline="middle">ADCA</text>
+  <text x="400" y="140" font-family="Arial" font-size="28" fill="white" text-anchor="middle" dominant-baseline="middle">करने से कौन सी नौकरी मिलती है?</text>
+  <g fill="white" font-family="Arial" font-size="20">
+    <text x="250" y="190" text-anchor="start">1. Computer Operator</text>
+    <text x="250" y="220" text-anchor="start">2. Data Entry Operator</text>
+    <text x="250" y="250" text-anchor="start">3. DTP Operator</text>
+    <text x="250" y="280" text-anchor="start">4. Office Executive</text>
+    <text x="250" y="310" text-anchor="start">5. Graphic Designer</text>
+    <text x="500" y="190" text-anchor="start">6. Customer Support</text>
+    <text x="500" y="220" text-anchor="start">7. Programmer</text>
+    <text x="500" y="250" text-anchor="start">8. Photo Editor</text>
+    <text x="500" y="280" text-anchor="start">9. Accountant</text>
+    <text x="500" y="310" text-anchor="start">10. Help Desk Operator</text>
+  </g>
+</svg>
