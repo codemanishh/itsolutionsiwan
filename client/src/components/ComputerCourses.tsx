@@ -19,6 +19,9 @@ export default function ComputerCourses() {
                   <span className="bg-primary text-white text-xs px-2 py-1 rounded">{course.duration}</span>
                 </div>
                 <h4 className="text-lg text-neutral-dark mb-4">{course.fullName}</h4>
+                <div className="mb-4 bg-accent/10 px-3 py-2 rounded-md">
+                  <span className="text-lg font-semibold text-accent-dark">{course.price}</span>
+                </div>
                 <p className="text-neutral-dark mb-4">{course.description}</p>
                 
                 <div className="mb-4">

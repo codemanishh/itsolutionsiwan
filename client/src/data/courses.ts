@@ -3,6 +3,7 @@ export interface Course {
   title: string;
   fullName: string;
   duration: string;
+  price: string;
   description: string;
   learningPoints: string[];
 }
@@ -13,6 +14,7 @@ const courses: Course[] = [
     title: "DCA",
     fullName: "Diploma in Computer Applications",
     duration: "6 months",
+    price: "₹6,000",
     description: "A comprehensive course covering basic computer skills including MS Office, Internet basics, and fundamental computer concepts.",
     learningPoints: [
       "Microsoft Office Suite (Word, Excel, PowerPoint)",
@@ -25,6 +27,7 @@ const courses: Course[] = [
     title: "ADCA",
     fullName: "Advanced Diploma in Computer Applications",
     duration: "1 year",
+    price: "₹12,000",
     description: "Advanced computer skills including programming, web development, and specialized software applications.",
     learningPoints: [
       "Computer Fundamental, Operating System",
@@ -38,6 +41,7 @@ const courses: Course[] = [
     title: "BCA",
     fullName: "Bachelor of Computer Applications",
     duration: "3 years",
+    price: "₹30,000/year",
     description: "A comprehensive degree program covering all aspects of computer science and applications.",
     learningPoints: [
       "Programming languages (C, C++, Java)",
@@ -50,6 +54,7 @@ const courses: Course[] = [
     title: "Tally",
     fullName: "Tally with GST",
     duration: "3 months",
+    price: "₹4,500",
     description: "Learn complete accounting and taxation management with the latest version of Tally.",
     learningPoints: [
       "Basic and advanced accounting concepts",
@@ -63,6 +68,7 @@ const courses: Course[] = [
     title: "DTP",
     fullName: "Desktop Publishing",
     duration: "3 months",
+    price: "₹4,000",
     description: "Master the skills of digital publishing and graphic design for print and digital media.",
     learningPoints: [
       "Adobe InDesign and PageMaker",

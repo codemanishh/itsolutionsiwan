@@ -2,6 +2,7 @@ export interface TypingCourse {
   id: string;
   title: string;
   duration: string;
+  price: string;
   description: string;
   learningPoints: string[];
 }
@@ -11,6 +12,7 @@ const typingCourses: TypingCourse[] = [
     id: "english-typing",
     title: "English Typing",
     duration: "3 months",
+    price: "₹3,500",
     description: "Master English typing with speed and accuracy. Perfect for office jobs and government positions.",
     learningPoints: [
       "Touch typing techniques",
@@ -22,6 +24,7 @@ const typingCourses: TypingCourse[] = [
     id: "hindi-typing",
     title: "Hindi Typing",
     duration: "3 months",
+    price: "₹3,500",
     description: "Learn Hindi typing using both Krutidev and Unicode methods for government jobs and office work.",
     learningPoints: [
       "Krutidev and Devlys keyboard layouts",
@@ -33,6 +36,7 @@ const typingCourses: TypingCourse[] = [
     id: "stenography",
     title: "Stenography",
     duration: "6 months",
+    price: "₹5,000",
     description: "Learn shorthand writing and transcription for secretarial and court reporting positions.",
     learningPoints: [
       "Pitman shorthand basics",
