@@ -1,0 +1,183 @@
+ADCA
+Advance Diploma in Computer Application
+
+Duration - 1 Year
+
+Course Content
+
+Computer Fundamental
+Operating System
+Note Pad
+Word Pad
+MS-Paint
+MS-Word
+MS-Excel
+MS-PowerPoint
+MS-Access
+Photoshop
+CorelDraw
+Email And Internet
+Tally With GST
+AI (Artificial Intelligence)
+
+
+
+Here is the extracted text from the image:
+
+---
+
+**कम्प्यूटर शिक्षण**
+Reg. - Under by Govt. of India
+
+एक साल की पढ़ाई उपर बार की कमाई
+
+करे अपने बच्चों की सपनों साकार
+
+माग 6 महीने में बने आत्मनिर्भर कम्प्यूटर एक्सपर्ट
+
+**DCA, ADCA**
+
+लघुकियों के लिए अलग बिच सुविधा
+
+**ADMISSION OPEN**
+
+भरत सरकार द्वारा मान्यता प्राप्त
+
+**I.T SOLUTION COMPUTER CENTER**
+
+पता:- आर्य समाज कम्प्यूटर डिग्री कॉलेज मोड़, सीवान
+
+**MOBILE NO:-** 7295956246, 9279501441
+
+---
+
+
+Here is the extracted text from the image:
+
+---
+
+**ADCA**
+
+करने से कौन सी नौकरी मिलती है?
+
+1. Computer Operator
+2. Data Entry Operator
+3. DTP Operator
+4. Office Executive
+5. Graphic Designer
+6. Customer Support
+7. Programmer
+8. Photo Editor
+9. Accountant
+10. Help Desk Operator
+
+---
+
+Here is the extracted text from the image:
+
+---
+
+**ADCA**
+
+कर के बेरोजगार के माध्यम से सरकारी ऑफिस में नौकरी पाएँ
+
+**जैसे में-**
+
+1. क्लार्क में
+2. कंप्यूटर / कंप्यूटर ऑपरेटर में
+3. डेटा एंट्री ऑपरेटर में
+4. डेस्कटॉप पब्लिशिंग में
+5. भाषा में
+6. रस्सुया विभाग में
+7. डी.ए.वा.रा.सी. ऑफिस में
+8. L.I.C Office में
+9. कल्याण विभाग में
+10. कृषि विभाग में
+11. ग्रामीण विकास विभाग में
+
+---
+
+Here is the extracted text from the image:
+
+---
+
+**रोजगार सिमिट हुए**
+
+**18 सालों से संचालित सरस्वान**
+
+**MEGA OFFER**
+
+**कम्प्यूटर शिक्षा**
+
+**@ 250/- P.M.**
+
+**Course:-**
+- DCA
+- ADCA
+- Tally
+- DTP
+
+**I.T. SOLUTION** आर्य समाज कम्प्यूटर डिग्री कॉलेज मोड़, सीवान
+
+**Office Time: 8 AM To 4 PM**
+
+**Mob: 7295956246, 9279501441**
+
+
+English Typing
+3 months
+Master English typing with speed and accuracy. Perfect for office jobs and government positions.
+
+Touch typing techniques
+Speed building exercises
+Accuracy improvement drills
+Enroll Now
+Hindi Typing
+3 months
+Learn Hindi typing using both Krutidev and Unicode methods for government jobs and office work.
+
+Krutidev and Devlys keyboard layouts
+Unicode Hindi typing
+Preparation for government typing tests
+Enroll Now
+Stenography
+6 months
+Learn shorthand writing and transcription for secretarial and court reporting positions.
+
+Pitman shorthand basics
+Dictation and transcription practice
+Speed building for professional requirements
+Enroll Now
+
+Computer Courses
+Typing Courses
+DCA
+Diploma in Computer Applications
+6 months
+A comprehensive course covering basic computer skills including MS Office, Internet basics, and fundamental computer concepts.
+
+Microsoft Office Suite (Word, Excel, PowerPoint)
+Basic web design and internet skills
+Computer fundamentals and operating systems
+Enroll Now
+ADCA
+Advanced Diploma in Computer Applications
+6 months
+Advanced computer skills including programming, web development, and specialized software applications.
+
+Advanced Office tools and Tally for accounting
+Web development (HTML, CSS, JavaScript basics)
+Graphic design fundamentals with Photoshop
+Enroll Now
+BCA
+Bachelor of Computer Applications
+3 years
+A comprehensive degree program covering all aspects of computer science and applications.
+
+Programming languages (C, C++, Java)
+Database management and system design
+Software development and project management
+Enroll Now
+---
+
+THIS IS MY CLIENTS WHO HAS COMOPUTER INSTITUIIN AND TYPING INSTUTION BOTH SO we want a website where addition opiton he need as one simple json file from which he enter the certificate numner and name, adress, adharnumber, certificate name, issue data, percentage score and verifity the issued ceritficate through UI, AND I WNAT YOU TO KEEP THE THE UI CARDS DATA IN THE JSON FILE ONLY FROM WHCIH I CAN EASILY CHANGES AND THE IMAGES DAIPLY IN THE UI THAT ALSO ALSO ADD SOME FLOTING IMAGES WHAT ILL CHANGES LATER FROM YOUR JSON FILES... AND MAKE IT FULLY RESPONSICVEE..... NO NEED OF BACKEND CODE IN THIS I THINK....
