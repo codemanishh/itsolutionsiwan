@@ -630,7 +630,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      return res.status(201).json(createdCourse);
+      // Transform learning points to ensure clean data
+      const transformedCourse = createdCourse ? {
+        ...createdCourse,
+        learningPoints: createdCourse.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      } : null;
+      
+      return res.status(201).json(transformedCourse);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ errors: error.errors });
@@ -704,7 +715,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      return res.status(200).json(finalCourse);
+      // Transform learning points to ensure clean data
+      const transformedCourse = finalCourse ? {
+        ...finalCourse,
+        learningPoints: finalCourse.learningPoints.map(point => ({
+          id: point.id,
+          point: point.point,
+          sortOrder: point.sortOrder,
+          courseId: point.courseId
+        }))
+      } : null;
+      
+      return res.status(200).json(transformedCourse);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ errors: error.errors });
