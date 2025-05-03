@@ -292,12 +292,36 @@ export default function CoursesTab() {
   
   const handleComputerCourseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addComputerCourseMutation.mutate(computerCourseData);
+    
+    // Extract just the string values from learning points
+    const extractedLearningPoints = computerCourseData.learningPoints.map(point => {
+      return typeof point.point === 'string' ? point.point : String(point.point);
+    });
+    
+    // Create a new object with string-only learning points
+    const formattedData = {
+      ...computerCourseData,
+      learningPoints: extractedLearningPoints
+    };
+    
+    addComputerCourseMutation.mutate(formattedData);
   };
   
   const handleTypingCourseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addTypingCourseMutation.mutate(typingCourseData);
+    
+    // Extract just the string values from learning points
+    const extractedLearningPoints = typingCourseData.learningPoints.map(point => {
+      return typeof point.point === 'string' ? point.point : String(point.point);
+    });
+    
+    // Create a new object with string-only learning points
+    const formattedData = {
+      ...typingCourseData,
+      learningPoints: extractedLearningPoints
+    };
+    
+    addTypingCourseMutation.mutate(formattedData);
   };
   
   const handleEditComputerCourse = (course: ComputerCourseType) => {
@@ -353,17 +377,24 @@ export default function CoursesTab() {
   const handleEditComputerCourseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (computerCourseToEdit) {
-      // Format the learning points properly before submitting
-      const formattedLearningPoints = computerCourseToEdit.learningPoints.map(point => ({
-        id: point.id,
-        point: typeof point.point === 'string' ? point.point : String(point.point),
-        sortOrder: point.sortOrder,
-        courseId: point.courseId
-      }));
+      // Extract just the string values from the learning points
+      const extractedLearningPoints = computerCourseToEdit.learningPoints.map(point => {
+        // Get just the point text, not the full object
+        const pointText = typeof point.point === 'string' 
+          ? point.point 
+          : typeof point.point === 'object' && point.point !== null 
+            ? JSON.stringify(point.point) 
+            : String(point.point);
+        
+        return pointText;
+      });
+      
+      // Remove learningPoints from the course object to avoid sending the full objects
+      const { learningPoints, ...courseData } = computerCourseToEdit;
       
       const formattedData = {
-        ...computerCourseToEdit,
-        learningPoints: formattedLearningPoints
+        ...courseData,
+        learningPoints: extractedLearningPoints
       };
       
       editComputerCourseMutation.mutate({
@@ -376,17 +407,24 @@ export default function CoursesTab() {
   const handleEditTypingCourseSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (typingCourseToEdit) {
-      // Format the learning points properly before submitting
-      const formattedLearningPoints = typingCourseToEdit.learningPoints.map(point => ({
-        id: point.id,
-        point: typeof point.point === 'string' ? point.point : String(point.point),
-        sortOrder: point.sortOrder,
-        courseId: point.courseId
-      }));
+      // Extract just the string values from the learning points
+      const extractedLearningPoints = typingCourseToEdit.learningPoints.map(point => {
+        // Get just the point text, not the full object
+        const pointText = typeof point.point === 'string' 
+          ? point.point 
+          : typeof point.point === 'object' && point.point !== null 
+            ? JSON.stringify(point.point) 
+            : String(point.point);
+        
+        return pointText;
+      });
+      
+      // Remove learningPoints from the course object to avoid sending the full objects
+      const { learningPoints, ...courseData } = typingCourseToEdit;
       
       const formattedData = {
-        ...typingCourseToEdit,
-        learningPoints: formattedLearningPoints
+        ...courseData,
+        learningPoints: extractedLearningPoints
       };
       
       editTypingCourseMutation.mutate({
