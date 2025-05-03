@@ -60,11 +60,11 @@ export default function Navbar() {
           </div>
           
           <nav className="hidden md:flex space-x-6">
-            <a href="#home" className="text-neutral-darkest hover:text-primary font-medium">Home</a>
-            <a href="#courses" className="text-neutral-darkest hover:text-primary font-medium">Courses</a>
-            <a href="#verify" className="text-neutral-darkest hover:text-primary font-medium">Verify Certificate</a>
-            <a href="#about" className="text-neutral-darkest hover:text-primary font-medium">About Us</a>
-            <a href="#contact" className="text-neutral-darkest hover:text-primary font-medium">Contact</a>
+            <Link href="/" className="text-neutral-darkest hover:text-primary font-medium">Home</Link>
+            <Link href="/courses" className="text-neutral-darkest hover:text-primary font-medium">Courses</Link>
+            <Link href="/verify" className="text-neutral-darkest hover:text-primary font-medium">Verify Certificate</Link>
+            <Link href="/about" className="text-neutral-darkest hover:text-primary font-medium">About Us</Link>
+            <Link href="/contact" className="text-neutral-darkest hover:text-primary font-medium">Contact</Link>
           </nav>
           
           <div className="flex items-center space-x-2">
@@ -99,11 +99,11 @@ export default function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden pb-4">
             <nav className="flex flex-col space-y-3">
-              <a href="#home" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Home</a>
-              <a href="#courses" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Courses</a>
-              <a href="#verify" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Verify Certificate</a>
-              <a href="#about" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>About Us</a>
-              <a href="#contact" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Contact</a>
+              <Link href="/" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Home</Link>
+              <Link href="/courses" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Courses</Link>
+              <Link href="/verify" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Verify Certificate</Link>
+              <Link href="/about" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>About Us</Link>
+              <Link href="/contact" className="text-neutral-darkest hover:text-primary font-medium" onClick={() => setIsMenuOpen(false)}>Contact</Link>
               
               {/* Mobile admin link */}
               {user ? (

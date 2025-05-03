@@ -2,7 +2,11 @@ import { Switch, Route } from "wouter";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
+import HomePage from "@/pages/HomePage";
+import CoursesPage from "@/pages/CoursesPage";
+import VerifyPage from "@/pages/VerifyPage";
+import AboutPage from "@/pages/AboutPage";
+import ContactPage from "@/pages/ContactPage";
 import Admin from "@/pages/Admin";
 import AuthPage from "@/pages/AuthPage";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -24,7 +28,11 @@ const queryClient = new QueryClient({
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={HomePage} />
+      <Route path="/courses" component={CoursesPage} />
+      <Route path="/verify" component={VerifyPage} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/contact" component={ContactPage} />
       <ProtectedRoute path="/admin" component={Admin} />
       <Route path="/auth" component={AuthPage} />
       {/* Fallback to 404 */}
