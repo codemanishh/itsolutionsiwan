@@ -13,10 +13,7 @@ export function ProtectedRoute({
     queryKey: ['/api/user'],
     retry: false,
     refetchOnWindowFocus: false,
-    onError: () => {
-      // We expect 401 errors when not logged in, so just suppress them
-      return null;
-    },
+    gcTime: 0,
   });
 
   if (isLoading) {

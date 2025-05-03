@@ -23,10 +23,7 @@ export default function AuthPage() {
     queryKey: ['/api/user'],
     retry: false,
     refetchOnWindowFocus: false,
-    onError: () => {
-      // We expect 401 errors when not logged in, so just suppress them
-      return null;
-    },
+    gcTime: 0, // Don't keep failed queries in cache
   });
 
   const loginMutation = useMutation({
@@ -114,8 +111,8 @@ export default function AuthPage() {
         </CardContent>
         <CardFooter>
           <div className="text-center text-sm w-full">
-            <Link href="/">
-              <a className="text-blue-600 hover:underline">Back to home page</a>
+            <Link href="/" className="text-blue-600 hover:underline">
+              Back to home page
             </Link>
           </div>
         </CardFooter>

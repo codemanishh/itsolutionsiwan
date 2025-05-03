@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { 
   Card, 
   CardContent, 
@@ -7,7 +8,23 @@ import {
 } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format, isValid } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { LogOut } from "lucide-react";
 
 // Safe date formatting function
 const formatDate = (dateString: string | null | undefined): string => {
@@ -32,65 +49,343 @@ interface ContactMessage {
   createdAt: string;
 }
 
+interface Certificate {
+  id: number;
+  certificateNumber: string;
+  name: string;
+  address: string;
+  aadharNumber: string;
+  certificateName: string;
+  issueDate: string;
+  percentageScore: number;
+}
+
 export default function Admin() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("messages");
+  const { toast } = useToast();
+  
+  // Form state for new certificate
+  const [certificateData, setCertificateData] = useState({
+    certificateNumber: "",
+    name: "",
+    address: "",
+    aadharNumber: "",
+    certificateName: "",
+    issueDate: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+    percentageScore: 70,
+  });
+
+  // Contact messages query
   const { 
     data: messages = [], 
-    isLoading,
-    error,
-    isError
+    isLoading: messagesLoading,
+    isError: messagesError
   } = useQuery<ContactMessage[]>({
     queryKey: ['/api/admin/messages'],
     refetchInterval: 30000, // Refetch every 30 seconds
+    enabled: activeTab === "messages",
   });
+
+  // Certificates query
+  const {
+    data: certificates = [],
+    isLoading: certificatesLoading,
+    isError: certificatesError
+  } = useQuery<Certificate[]>({
+    queryKey: ['/api/certificates'],
+    enabled: activeTab === "certificates",
+  });
+
+  // Add certificate mutation
+  const addCertificateMutation = useMutation({
+    mutationFn: async (data: typeof certificateData) => {
+      const res = await apiRequest("POST", "/api/certificates", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/certificates'] });
+      setIsDialogOpen(false);
+      setCertificateData({
+        certificateNumber: "",
+        name: "",
+        address: "",
+        aadharNumber: "",
+        certificateName: "",
+        issueDate: new Date().toISOString().split('T')[0],
+        percentageScore: 70,
+      });
+      toast({
+        title: "Success",
+        description: "Certificate added successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to add certificate: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/logout");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+      window.location.href = "/auth";
+    },
+    onError: (error) => {
+      toast({
+        title: "Logout failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCertificateData(prev => ({
+      ...prev,
+      [name]: name === 'percentageScore' ? parseInt(value) : value
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    addCertificateMutation.mutate(certificateData);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="text-2xl md:text-3xl font-bold">Admin Dashboard</CardTitle>
-          <CardDescription>View all contact form submissions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8">Loading messages...</div>
-          ) : isError ? (
-            <div className="text-center py-8 text-red-500">
-              Failed to load messages. Please try again later.
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="text-center py-8">No messages found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Course</TableHead>
-                    <TableHead>Message</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {messages.map((message) => (
-                    <TableRow key={message.id}>
-                      <TableCell>
-                        {formatDate(message.createdAt)}
-                      </TableCell>
-                      <TableCell>{message.name || "N/A"}</TableCell>
-                      <TableCell>{message.phone || "N/A"}</TableCell>
-                      <TableCell>{message.email || "N/A"}</TableCell>
-                      <TableCell>{message.course || "N/A"}</TableCell>
-                      <TableCell className="max-w-xs truncate">{message.message || "N/A"}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+        <Button 
+          variant="outline" 
+          onClick={() => logoutMutation.mutate()}
+          disabled={logoutMutation.isPending}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          {logoutMutation.isPending ? "Logging out..." : "Logout"}
+        </Button>
+      </div>
+
+      <Tabs defaultValue="messages" value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="messages">Contact Messages</TabsTrigger>
+          <TabsTrigger value="certificates">Certificates</TabsTrigger>
+        </TabsList>
+        
+        {/* Contact Messages Tab */}
+        <TabsContent value="messages">
+          <Card>
+            <CardHeader>
+              <CardTitle>Contact Form Submissions</CardTitle>
+              <CardDescription>View all messages sent through the contact form</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {messagesLoading ? (
+                <div className="text-center py-8">Loading messages...</div>
+              ) : messagesError ? (
+                <div className="text-center py-8 text-red-500">
+                  Failed to load messages. Please try again later.
+                </div>
+              ) : messages.length === 0 ? (
+                <div className="text-center py-8">No messages found.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Message</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {messages.map((message) => (
+                        <TableRow key={message.id}>
+                          <TableCell>
+                            {formatDate(message.createdAt)}
+                          </TableCell>
+                          <TableCell>{message.name || "N/A"}</TableCell>
+                          <TableCell>{message.phone || "N/A"}</TableCell>
+                          <TableCell>{message.email || "N/A"}</TableCell>
+                          <TableCell>{message.course || "N/A"}</TableCell>
+                          <TableCell className="max-w-xs truncate">{message.message || "N/A"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        {/* Certificates Tab */}
+        <TabsContent value="certificates">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Certificate Management</CardTitle>
+                <CardDescription>Manage certificates for students</CardDescription>
+              </div>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>Add New Certificate</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <form onSubmit={handleSubmit}>
+                    <DialogHeader>
+                      <DialogTitle>Add New Certificate</DialogTitle>
+                      <DialogDescription>
+                        Fill in the details to create a new certificate for a student
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="certificateNumber">Certificate Number</Label>
+                          <Input
+                            id="certificateNumber"
+                            name="certificateNumber"
+                            placeholder="e.g., ADCA-2023-1234"
+                            value={certificateData.certificateNumber}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="certificateName">Certificate Name</Label>
+                          <Input
+                            id="certificateName"
+                            name="certificateName"
+                            placeholder="e.g., ADCA, DCA, etc."
+                            value={certificateData.certificateName}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Student Name</Label>
+                        <Input
+                          id="name"
+                          name="name"
+                          placeholder="Enter student's full name"
+                          value={certificateData.name}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Address</Label>
+                        <Input
+                          id="address"
+                          name="address"
+                          placeholder="Enter student's address"
+                          value={certificateData.address}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="aadharNumber">Aadhar Number</Label>
+                        <Input
+                          id="aadharNumber"
+                          name="aadharNumber"
+                          placeholder="Enter 12-digit Aadhar number"
+                          value={certificateData.aadharNumber}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="issueDate">Issue Date</Label>
+                          <Input
+                            id="issueDate"
+                            name="issueDate"
+                            type="date"
+                            value={certificateData.issueDate}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="percentageScore">Percentage Score</Label>
+                          <Input
+                            id="percentageScore"
+                            name="percentageScore"
+                            type="number"
+                            min="1"
+                            max="100"
+                            value={certificateData.percentageScore}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button 
+                        type="submit" 
+                        disabled={addCertificateMutation.isPending}
+                      >
+                        {addCertificateMutation.isPending ? "Adding..." : "Add Certificate"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              {certificatesLoading ? (
+                <div className="text-center py-8">Loading certificates...</div>
+              ) : certificatesError ? (
+                <div className="text-center py-8 text-red-500">
+                  Failed to load certificates. Please try again later.
+                </div>
+              ) : certificates.length === 0 ? (
+                <div className="text-center py-8">No certificates found.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Certificate Number</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Course</TableHead>
+                        <TableHead>Issue Date</TableHead>
+                        <TableHead>Score</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {certificates.map((cert) => (
+                        <TableRow key={cert.id}>
+                          <TableCell>{cert.certificateNumber}</TableCell>
+                          <TableCell>{cert.name}</TableCell>
+                          <TableCell>{cert.certificateName}</TableCell>
+                          <TableCell>{formatDate(cert.issueDate)}</TableCell>
+                          <TableCell>{cert.percentageScore}%</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

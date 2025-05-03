@@ -34,7 +34,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post('/api/certificates', async (req, res) => {
+  // Get all certificates (protected route)
+  app.get('/api/certificates', isAuthenticated, async (req, res) => {
+    try {
+      const result = await db.execute(
+        `SELECT * FROM certificates ORDER BY issue_date DESC`
+      );
+      
+      // Extract rows from the result
+      const certificates = result.rows || [];
+      return res.status(200).json(certificates);
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  app.post('/api/certificates', isAuthenticated, async (req, res) => {
     try {
       const validatedData = certificatesInsertSchema.parse(req.body);
       const newCertificate = await addCertificate(validatedData);
