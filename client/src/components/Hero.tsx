@@ -6,7 +6,7 @@ export default function Hero() {
     <section id="home" className="bg-gradient-to-r from-primary to-[hsl(var(--primary-light))] text-white py-12 md:py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 z-10 relative">
         {/* Carousel Section */}
-        <div className="mb-12">
+        <div className="mb-14 max-w-5xl mx-auto">
           <HeroCarousel />
         </div>
         

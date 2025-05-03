@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Import all carousel images
-import carousel1 from "../assets/images/carousel-1.svg";
-import carousel2 from "../assets/images/carousel-2.svg";
-import carousel3 from "../assets/images/carousel-3.svg";
-import carousel4 from "../assets/images/carousel-4.svg";
-import carousel5 from "../assets/images/carousel-5.svg";
+import carousel1 from "../assets/uploads/11.jpeg";
+import carousel2 from "../assets/uploads/22.jpeg";
+import carousel3 from "../assets/uploads/33.jpeg";
+import carousel4 from "../assets/uploads/44.jpeg";
+import carousel5 from "../assets/uploads/55.jpeg";
 
 const carouselImages = [
-  { src: carousel1, alt: "Computer Training" },
-  { src: carousel2, alt: "DCA ADCA Training" },
-  { src: carousel3, alt: "Computer Training Special Offer" },
-  { src: carousel4, alt: "Job Opportunities After ADCA" },
-  { src: carousel5, alt: "IT Solution Contact Information" },
+  { src: carousel1, alt: "Computer Training Institute" },
+  { src: carousel2, alt: "IT Solutions Computer Center" },
+  { src: carousel3, alt: "Computer Training Programs" },
+  { src: carousel4, alt: "Computer Courses Siwan" },
+  { src: carousel5, alt: "IT Training Center" },
 ];
 
 export default function HeroCarousel() {
@@ -46,7 +46,7 @@ export default function HeroCarousel() {
   };
 
   return (
-    <div className="relative h-[400px] w-full overflow-hidden rounded-lg shadow-md">
+    <div className="relative h-[400px] w-full overflow-hidden rounded-lg shadow-lg">
       {/* Carousel Images */}
       <div 
         className="h-full w-full transition-transform duration-500 ease-out"
@@ -58,7 +58,7 @@ export default function HeroCarousel() {
               <img 
                 src={image.src} 
                 alt={image.alt} 
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain md:object-cover"
               />
             </div>
           ))}
