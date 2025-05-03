@@ -1,10 +1,15 @@
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import HeroCarousel from "./HeroCarousel";
 
 export default function Hero() {
   return (
     <section id="home" className="bg-gradient-to-r from-primary to-[hsl(var(--primary-light))] text-white py-12 md:py-20 relative overflow-hidden">
       <div className="container mx-auto px-4 z-10 relative">
+        {/* Carousel Section */}
+        <div className="mb-12">
+          <HeroCarousel />
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div>
             <h1 className="text-3xl md:text-5xl font-bold mb-4">एक साल की पढ़ाई उपर बार की कमाई</h1>
