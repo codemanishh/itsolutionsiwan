@@ -57,6 +57,7 @@ interface ContactMessage {
   email: string;
   course: string;
   message: string;
+  status: string; // 'open' or 'closed'
   createdAt: string;
 }
 
@@ -278,6 +279,54 @@ export default function Admin() {
     setCertificateIdToDelete(id);
     setIsDeleteDialogOpen(true);
   };
+  
+  // Message status toggle mutation
+  const updateMessageStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number, status: string }) => {
+      const res = await apiRequest("PUT", `/api/admin/messages/${id}/status`, { status });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
+      toast({
+        title: "Success",
+        description: "Message status updated",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update message status: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  // Delete message mutation
+  const deleteMessageMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/admin/messages/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/messages'] });
+      toast({
+        title: "Success",
+        description: "Message deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete message: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const toggleMessageStatus = (id: number, currentStatus: string) => {
+    const newStatus = currentStatus === 'open' ? 'closed' : 'open';
+    updateMessageStatusMutation.mutate({ id, status: newStatus });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -326,6 +375,8 @@ export default function Admin() {
                         <TableHead>Email</TableHead>
                         <TableHead>Course</TableHead>
                         <TableHead>Message</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -339,6 +390,34 @@ export default function Admin() {
                           <TableCell>{message.email || "N/A"}</TableCell>
                           <TableCell>{message.course || "N/A"}</TableCell>
                           <TableCell className="max-w-xs truncate">{message.message || "N/A"}</TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={message.status === 'open' ? 'default' : 'destructive'}
+                              className={message.status === 'open' ? 'bg-green-500' : 'bg-red-500'}
+                            >
+                              {message.status === 'open' ? 'Open' : 'Closed'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => toggleMessageStatus(message.id, message.status)}
+                                disabled={updateMessageStatusMutation.isPending}
+                              >
+                                {message.status === 'open' ? 'Close' : 'Open'}
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => deleteMessageMutation.mutate(message.id)}
+                                disabled={deleteMessageMutation.isPending}
+                              >
+                                Delete
+                              </Button>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

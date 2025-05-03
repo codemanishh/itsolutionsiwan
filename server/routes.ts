@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/messages', isAuthenticated, async (req, res) => {
     try {
       const result = await db.execute(sql`
-        SELECT id, name, phone, email, course, message, created_at as "createdAt" 
+        SELECT id, name, phone, email, course, message, status, created_at as "createdAt" 
         FROM contact_messages 
         ORDER BY created_at DESC
       `);
@@ -201,6 +201,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json(messages);
     } catch (error) {
       console.error('Error fetching contact messages:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // API route to update message status (protected)
+  app.put('/api/admin/messages/:id/status', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+      
+      const { status } = req.body;
+      if (!status || (status !== 'open' && status !== 'closed')) {
+        return res.status(400).json({ message: 'Invalid status value. Must be "open" or "closed"' });
+      }
+      
+      // Check if message exists
+      const checkResult = await db.execute(sql`SELECT id FROM contact_messages WHERE id = ${id}`);
+      if (!checkResult.rows?.length) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+      
+      // Update the message status
+      await db.execute(sql`UPDATE contact_messages SET status = ${status} WHERE id = ${id}`);
+      
+      // Get the updated message
+      const result = await db.execute(sql`
+        SELECT id, name, phone, email, course, message, status, created_at as "createdAt"
+        FROM contact_messages WHERE id = ${id}
+      `);
+      
+      return res.status(200).json(result.rows?.[0] || {});
+    } catch (error) {
+      console.error('Error updating message status:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // API route to delete a message (protected)
+  app.delete('/api/admin/messages/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+      
+      // Check if message exists
+      const checkResult = await db.execute(sql`SELECT id FROM contact_messages WHERE id = ${id}`);
+      if (!checkResult.rows?.length) {
+        return res.status(404).json({ message: 'Message not found' });
+      }
+      
+      // Delete the message
+      await db.execute(sql`DELETE FROM contact_messages WHERE id = ${id}`);
+      
+      return res.status(200).json({ message: 'Message deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting message:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
   });

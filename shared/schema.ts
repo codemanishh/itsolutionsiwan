@@ -42,6 +42,7 @@ export const contactMessages = pgTable("contact_messages", {
   email: text("email").notNull(),
   course: text("course").notNull(),
   message: text("message").notNull(),
+  status: text("status").default("open").notNull(), // 'open' or 'closed'
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
