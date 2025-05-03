@@ -1,11 +1,22 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { getCertificateByNumber, addCertificate, saveContactMessage } from "./storage";
 import { contactMessagesInsertSchema, certificatesInsertSchema } from "@shared/schema";
 import { z } from "zod";
 import { db } from "@db";
+import { setupAuth } from "./auth";
+
+// Middleware to check if user is authenticated
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: 'Unauthorized' });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication
+  await setupAuth(app);
   // API routes for certificates
   app.get('/api/certificates/:certificateNumber', async (req, res) => {
     try {
@@ -52,8 +63,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // API route to get all contact messages
-  app.get('/api/admin/messages', async (req, res) => {
+  // API route to get all contact messages (protected)
+  app.get('/api/admin/messages', isAuthenticated, async (req, res) => {
     try {
       const result = await db.execute(
         `SELECT id, name, phone, email, course, message, created_at as "createdAt" 
