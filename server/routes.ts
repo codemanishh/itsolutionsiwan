@@ -4,6 +4,7 @@ import { getCertificateByNumber, addCertificate, saveContactMessage } from "./st
 import { contactMessagesInsertSchema, certificatesInsertSchema } from "@shared/schema";
 import { z } from "zod";
 import { db } from "@db";
+import { sql } from "drizzle-orm";
 import { setupAuth } from "./auth";
 
 // Middleware to check if user is authenticated
@@ -37,9 +38,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all certificates (protected route)
   app.get('/api/certificates', isAuthenticated, async (req, res) => {
     try {
-      const result = await db.execute(
-        `SELECT * FROM certificates ORDER BY issue_date DESC`
-      );
+      const result = await db.execute(sql`
+        SELECT * FROM certificates ORDER BY issue_date DESC
+      `);
       
       // Extract rows from the result
       const certificates = result.rows || [];
@@ -147,11 +148,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API route to get all contact messages (protected)
   app.get('/api/admin/messages', isAuthenticated, async (req, res) => {
     try {
-      const result = await db.execute(
-        `SELECT id, name, phone, email, course, message, created_at as "createdAt" 
-         FROM contact_messages 
-         ORDER BY created_at DESC`
-      );
+      const result = await db.execute(sql`
+        SELECT id, name, phone, email, course, message, created_at as "createdAt" 
+        FROM contact_messages 
+        ORDER BY created_at DESC
+      `);
       
       // Extract rows from the result
       const messages = result.rows || [];

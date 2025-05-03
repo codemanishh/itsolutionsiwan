@@ -21,6 +21,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -62,7 +73,11 @@ interface Certificate {
 
 export default function Admin() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("messages");
+  const [certificateToEdit, setCertificateToEdit] = useState<Certificate | null>(null);
+  const [certificateIdToDelete, setCertificateIdToDelete] = useState<number | null>(null);
   const { toast } = useToast();
   
   // Form state for new certificate
@@ -129,6 +144,53 @@ export default function Admin() {
     }
   });
 
+  // Edit certificate mutation
+  const editCertificateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: Partial<typeof certificateData> }) => {
+      const res = await apiRequest("PUT", `/api/certificates/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/certificates'] });
+      setIsEditDialogOpen(false);
+      setCertificateToEdit(null);
+      toast({
+        title: "Success",
+        description: "Certificate updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update certificate: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Delete certificate mutation
+  const deleteCertificateMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/certificates/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/certificates'] });
+      setIsDeleteDialogOpen(false);
+      setCertificateIdToDelete(null);
+      toast({
+        title: "Success",
+        description: "Certificate deleted successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete certificate: ${error.message}`,
+        variant: "destructive",
+      });
+    }
+  });
+
   // Logout mutation
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -155,9 +217,39 @@ export default function Admin() {
     }));
   };
 
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (certificateToEdit) {
+      setCertificateToEdit({
+        ...certificateToEdit,
+        [name]: name === 'percentageScore' ? parseInt(value) : value
+      });
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addCertificateMutation.mutate(certificateData);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (certificateToEdit) {
+      editCertificateMutation.mutate({
+        id: certificateToEdit.id,
+        data: certificateToEdit
+      });
+    }
+  };
+
+  const handleEditCertificate = (certificate: Certificate) => {
+    setCertificateToEdit(certificate);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteCertificate = (id: number) => {
+    setCertificateIdToDelete(id);
+    setIsDeleteDialogOpen(true);
   };
 
   return (
