@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { getCertificateByNumber, addCertificate, saveContactMessage } from "./storage";
 import { contactMessagesInsertSchema, certificatesInsertSchema } from "@shared/schema";
 import { z } from "zod";
+import { db } from "@db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes for certificates
@@ -47,6 +48,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ errors: error.errors });
       }
       console.error('Error saving contact message:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  // API route to get all contact messages
+  app.get('/api/admin/messages', async (req, res) => {
+    try {
+      const messages = await db.execute(
+        `SELECT * FROM contact_messages ORDER BY created_at DESC`
+      );
+      return res.status(200).json(messages);
+    } catch (error) {
+      console.error('Error fetching contact messages:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
   });
