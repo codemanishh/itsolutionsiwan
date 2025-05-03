@@ -255,17 +255,18 @@ export default function Admin() {
   const handleEditCertificate = (certificate: Certificate) => {
     console.log('Certificate to edit:', certificate);
     
-    // Make sure all properties are properly mapped from DB column names to our model
+    // Map certificate data from API response to our form model
+    // The data might come with snake_case keys from the database but our TypeScript expects camelCase
     const formattedCertificate = {
       ...certificate,
       id: certificate.id,
-      certificateNumber: certificate.certificateNumber || certificate.certificate_number,
-      name: certificate.name,
-      address: certificate.address,
-      aadharNumber: certificate.aadharNumber || certificate.aadhar_number,
-      certificateName: certificate.certificateName || certificate.certificate_name,
-      issueDate: certificate.issueDate || certificate.issue_date,
-      percentageScore: certificate.percentageScore || certificate.percentage_score
+      certificateNumber: certificate.certificateNumber || (certificate as any).certificate_number || '',
+      name: certificate.name || '',
+      address: certificate.address || '', 
+      aadharNumber: certificate.aadharNumber || (certificate as any).aadhar_number || '',
+      certificateName: certificate.certificateName || (certificate as any).certificate_name || '', 
+      issueDate: certificate.issueDate || (certificate as any).issue_date || new Date().toISOString().split('T')[0],
+      percentageScore: certificate.percentageScore || (certificate as any).percentage_score || 0
     };
     
     console.log('Formatted certificate:', formattedCertificate);

@@ -75,56 +75,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const validatedData = certificatesInsertSchema.partial().parse(req.body);
       
-      // Prepare update fields dynamically to avoid SQL syntax issues
-      let updateQuery = 'UPDATE certificates SET ';
-      const updateValues = [];
-      const queryParams = [];
+      // Perform the update using SQL template literals for safe SQL execution
+      const updates = [];
       
+      // Only add fields that are defined in the validated data
       if (validatedData.certificateNumber !== undefined) {
-        updateValues.push(`certificate_number = $${queryParams.length + 1}`);
-        queryParams.push(validatedData.certificateNumber);
+        updates.push(sql`certificate_number = ${validatedData.certificateNumber}`);
       }
       
       if (validatedData.name !== undefined) {
-        updateValues.push(`name = $${queryParams.length + 1}`);
-        queryParams.push(validatedData.name);
+        updates.push(sql`name = ${validatedData.name}`);
       }
       
       if (validatedData.address !== undefined) {
-        updateValues.push(`address = $${queryParams.length + 1}`);
-        queryParams.push(validatedData.address);
+        updates.push(sql`address = ${validatedData.address}`);
       }
       
       if (validatedData.aadharNumber !== undefined) {
-        updateValues.push(`aadhar_number = $${queryParams.length + 1}`);
-        queryParams.push(validatedData.aadharNumber);
+        updates.push(sql`aadhar_number = ${validatedData.aadharNumber}`);
       }
       
       if (validatedData.certificateName !== undefined) {
-        updateValues.push(`certificate_name = $${queryParams.length + 1}`);
-        queryParams.push(validatedData.certificateName);
+        updates.push(sql`certificate_name = ${validatedData.certificateName}`);
       }
       
       if (validatedData.issueDate !== undefined) {
-        updateValues.push(`issue_date = $${queryParams.length + 1}`);
-        queryParams.push(validatedData.issueDate);
+        updates.push(sql`issue_date = ${validatedData.issueDate}`);
       }
       
       if (validatedData.percentageScore !== undefined) {
-        updateValues.push(`percentage_score = $${queryParams.length + 1}`);
-        queryParams.push(validatedData.percentageScore);
+        updates.push(sql`percentage_score = ${validatedData.percentageScore}`);
       }
       
       // No fields to update
-      if (updateValues.length === 0) {
+      if (updates.length === 0) {
         return res.status(400).json({ message: 'No fields to update' });
       }
       
-      updateQuery += updateValues.join(', ') + ` WHERE id = $${queryParams.length + 1}`;
-      queryParams.push(id);
+      // Build a dynamic SQL query by combining all field updates
+      let query = sql`UPDATE certificates SET `;
       
-      // Execute the update
-      await db.execute(updateQuery);
+      // Add each field update with a separator between them
+      for (let i = 0; i < updates.length; i++) {
+        if (i > 0) {
+          query = sql`${query}, ${updates[i]}`;
+        } else {
+          query = sql`${query}${updates[i]}`;
+        }
+      }
+      
+      // Add the WHERE clause
+      query = sql`${query} WHERE id = ${id}`;
+      
+      // Execute the final query
+      await db.execute(query);
       
       // Get the updated certificate
       const result = await db.execute(sql`SELECT * FROM certificates WHERE id = ${id}`);
