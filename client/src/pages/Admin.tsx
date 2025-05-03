@@ -12,7 +12,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -37,7 +37,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut } from "lucide-react";
 
 // Safe date formatting function
 const formatDate = (dateString: string | null | undefined): string => {
@@ -715,11 +714,7 @@ export default function Admin() {
                                       id="edit-issueDate"
                                       name="issueDate"
                                       type="date"
-                                      value={certificateToEdit.issueDate ? 
-                                        (certificateToEdit.issueDate.includes('T') ? 
-                                          certificateToEdit.issueDate.split('T')[0] : 
-                                          certificateToEdit.issueDate) : 
-                                        new Date().toISOString().split('T')[0]}
+                                      value={certificateToEdit.issueDate}
                                       onChange={handleEditInputChange}
                                       required
                                     />
@@ -752,25 +747,24 @@ export default function Admin() {
                         </DialogContent>
                       </Dialog>
                       
-                      {/* Delete Confirmation Dialog */}
+                      {/* Delete Certificate Confirmation */}
                       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
                             <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete the certificate.
+                              Are you sure you want to delete this certificate? This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction 
+                            <AlertDialogAction
                               onClick={() => {
                                 if (certificateIdToDelete !== null) {
                                   deleteCertificateMutation.mutate(certificateIdToDelete);
                                 }
                               }}
                               disabled={deleteCertificateMutation.isPending}
-                              className="bg-red-600 hover:bg-red-700"
                             >
                               {deleteCertificateMutation.isPending ? "Deleting..." : "Delete"}
                             </AlertDialogAction>
