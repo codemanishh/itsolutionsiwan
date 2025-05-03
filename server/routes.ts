@@ -1,10 +1,21 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { getCertificateByNumber, addCertificate, saveContactMessage } from "./storage";
-import { contactMessagesInsertSchema, certificatesInsertSchema } from "@shared/schema";
+import { 
+  contactMessagesInsertSchema, 
+  certificatesInsertSchema,
+  computerCoursesInsertSchema,
+  computerLearningPointsInsertSchema,
+  typingCoursesInsertSchema,
+  typingLearningPointsInsertSchema,
+  computerCourses,
+  computerLearningPoints,
+  typingCourses,
+  typingLearningPoints
+} from "@shared/schema";
 import { z } from "zod";
 import { db } from "@db";
-import { sql } from "drizzle-orm";
+import { sql, eq, desc, and } from "drizzle-orm";
 import { setupAuth } from "./auth";
 
 // Middleware to check if user is authenticated
@@ -260,6 +271,406 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(200).json({ message: 'Message deleted successfully' });
     } catch (error) {
       console.error('Error deleting message:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // =============== COMPUTER COURSES API ROUTES =============== //
+
+  // Get all computer courses with learning points
+  app.get('/api/computer-courses', async (req, res) => {
+    try {
+      const courses = await db.query.computerCourses.findMany({
+        orderBy: [desc(computerCourses.title)],
+        with: {
+          learningPoints: {
+            orderBy: [computerLearningPoints.sortOrder],
+          }
+        }
+      });
+      
+      return res.status(200).json(courses);
+    } catch (error) {
+      console.error('Error fetching computer courses:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Get a single computer course by ID
+  app.get('/api/computer-courses/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+
+      const course = await db.query.computerCourses.findFirst({
+        where: eq(computerCourses.id, id),
+        with: {
+          learningPoints: {
+            orderBy: [computerLearningPoints.sortOrder],
+          }
+        }
+      });
+      
+      if (!course) {
+        return res.status(404).json({ message: 'Course not found' });
+      }
+      
+      return res.status(200).json(course);
+    } catch (error) {
+      console.error('Error fetching computer course:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Create a new computer course (protected)
+  app.post('/api/computer-courses', isAuthenticated, async (req, res) => {
+    try {
+      const { title, fullName, duration, price, description, learningPoints } = req.body;
+      
+      // Validate course data
+      const validatedCourseData = computerCoursesInsertSchema.parse({
+        title,
+        fullName, 
+        duration,
+        price,
+        description
+      });
+      
+      // Insert the course
+      const [newCourse] = await db.insert(computerCourses)
+        .values(validatedCourseData)
+        .returning();
+      
+      // Insert learning points if provided
+      if (Array.isArray(learningPoints) && learningPoints.length > 0) {
+        const learningPointsData = learningPoints.map((point, index) => ({
+          courseId: newCourse.id,
+          point,
+          sortOrder: index + 1
+        }));
+        
+        await db.insert(computerLearningPoints).values(learningPointsData);
+      }
+      
+      // Return the created course with learning points
+      const createdCourse = await db.query.computerCourses.findFirst({
+        where: eq(computerCourses.id, newCourse.id),
+        with: {
+          learningPoints: {
+            orderBy: [computerLearningPoints.sortOrder]
+          }
+        }
+      });
+      
+      return res.status(201).json(createdCourse);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error creating computer course:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Update a computer course (protected)
+  app.put('/api/computer-courses/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+      
+      const { title, fullName, duration, price, description, learningPoints } = req.body;
+      
+      // Validate course data
+      const validatedCourseData = computerCoursesInsertSchema.partial().parse({
+        title,
+        fullName,
+        duration,
+        price,
+        description
+      });
+      
+      // Check if course exists
+      const existingCourse = await db.query.computerCourses.findFirst({
+        where: eq(computerCourses.id, id)
+      });
+      
+      if (!existingCourse) {
+        return res.status(404).json({ message: 'Course not found' });
+      }
+      
+      // Update the course
+      const [updatedCourse] = await db.update(computerCourses)
+        .set({
+          ...validatedCourseData,
+          updatedAt: new Date()
+        })
+        .where(eq(computerCourses.id, id))
+        .returning();
+      
+      // Update learning points if provided
+      if (Array.isArray(learningPoints)) {
+        // Delete existing learning points
+        await db.delete(computerLearningPoints)
+          .where(eq(computerLearningPoints.courseId, id));
+        
+        // Insert new learning points
+        if (learningPoints.length > 0) {
+          const learningPointsData = learningPoints.map((point, index) => ({
+            courseId: id,
+            point,
+            sortOrder: index + 1
+          }));
+          
+          await db.insert(computerLearningPoints).values(learningPointsData);
+        }
+      }
+      
+      // Return the updated course with learning points
+      const finalCourse = await db.query.computerCourses.findFirst({
+        where: eq(computerCourses.id, id),
+        with: {
+          learningPoints: {
+            orderBy: [computerLearningPoints.sortOrder]
+          }
+        }
+      });
+      
+      return res.status(200).json(finalCourse);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error updating computer course:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Delete a computer course (protected)
+  app.delete('/api/computer-courses/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+      
+      // Check if course exists
+      const existingCourse = await db.query.computerCourses.findFirst({
+        where: eq(computerCourses.id, id)
+      });
+      
+      if (!existingCourse) {
+        return res.status(404).json({ message: 'Course not found' });
+      }
+      
+      // Delete the course (learning points will be deleted automatically due to CASCADE)
+      await db.delete(computerCourses).where(eq(computerCourses.id, id));
+      
+      return res.status(200).json({ message: 'Course deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting computer course:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // =============== TYPING COURSES API ROUTES =============== //
+
+  // Get all typing courses with learning points
+  app.get('/api/typing-courses', async (req, res) => {
+    try {
+      const courses = await db.query.typingCourses.findMany({
+        orderBy: [typingCourses.title],
+        with: {
+          learningPoints: {
+            orderBy: [typingLearningPoints.sortOrder],
+          }
+        }
+      });
+      
+      return res.status(200).json(courses);
+    } catch (error) {
+      console.error('Error fetching typing courses:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Get a single typing course by ID
+  app.get('/api/typing-courses/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+
+      const course = await db.query.typingCourses.findFirst({
+        where: eq(typingCourses.id, id),
+        with: {
+          learningPoints: {
+            orderBy: [typingLearningPoints.sortOrder],
+          }
+        }
+      });
+      
+      if (!course) {
+        return res.status(404).json({ message: 'Course not found' });
+      }
+      
+      return res.status(200).json(course);
+    } catch (error) {
+      console.error('Error fetching typing course:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Create a new typing course (protected)
+  app.post('/api/typing-courses', isAuthenticated, async (req, res) => {
+    try {
+      const { title, duration, price, description, learningPoints } = req.body;
+      
+      // Validate course data
+      const validatedCourseData = typingCoursesInsertSchema.parse({
+        title,
+        duration,
+        price,
+        description
+      });
+      
+      // Insert the course
+      const [newCourse] = await db.insert(typingCourses)
+        .values(validatedCourseData)
+        .returning();
+      
+      // Insert learning points if provided
+      if (Array.isArray(learningPoints) && learningPoints.length > 0) {
+        const learningPointsData = learningPoints.map((point, index) => ({
+          courseId: newCourse.id,
+          point,
+          sortOrder: index + 1
+        }));
+        
+        await db.insert(typingLearningPoints).values(learningPointsData);
+      }
+      
+      // Return the created course with learning points
+      const createdCourse = await db.query.typingCourses.findFirst({
+        where: eq(typingCourses.id, newCourse.id),
+        with: {
+          learningPoints: {
+            orderBy: [typingLearningPoints.sortOrder]
+          }
+        }
+      });
+      
+      return res.status(201).json(createdCourse);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error creating typing course:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Update a typing course (protected)
+  app.put('/api/typing-courses/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+      
+      const { title, duration, price, description, learningPoints } = req.body;
+      
+      // Validate course data
+      const validatedCourseData = typingCoursesInsertSchema.partial().parse({
+        title,
+        duration,
+        price,
+        description
+      });
+      
+      // Check if course exists
+      const existingCourse = await db.query.typingCourses.findFirst({
+        where: eq(typingCourses.id, id)
+      });
+      
+      if (!existingCourse) {
+        return res.status(404).json({ message: 'Course not found' });
+      }
+      
+      // Update the course
+      const [updatedCourse] = await db.update(typingCourses)
+        .set({
+          ...validatedCourseData,
+          updatedAt: new Date()
+        })
+        .where(eq(typingCourses.id, id))
+        .returning();
+      
+      // Update learning points if provided
+      if (Array.isArray(learningPoints)) {
+        // Delete existing learning points
+        await db.delete(typingLearningPoints)
+          .where(eq(typingLearningPoints.courseId, id));
+        
+        // Insert new learning points
+        if (learningPoints.length > 0) {
+          const learningPointsData = learningPoints.map((point, index) => ({
+            courseId: id,
+            point,
+            sortOrder: index + 1
+          }));
+          
+          await db.insert(typingLearningPoints).values(learningPointsData);
+        }
+      }
+      
+      // Return the updated course with learning points
+      const finalCourse = await db.query.typingCourses.findFirst({
+        where: eq(typingCourses.id, id),
+        with: {
+          learningPoints: {
+            orderBy: [typingLearningPoints.sortOrder]
+          }
+        }
+      });
+      
+      return res.status(200).json(finalCourse);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error('Error updating typing course:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Delete a typing course (protected)
+  app.delete('/api/typing-courses/:id', isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+      
+      // Check if course exists
+      const existingCourse = await db.query.typingCourses.findFirst({
+        where: eq(typingCourses.id, id)
+      });
+      
+      if (!existingCourse) {
+        return res.status(404).json({ message: 'Course not found' });
+      }
+      
+      // Delete the course (learning points will be deleted automatically due to CASCADE)
+      await db.delete(typingCourses).where(eq(typingCourses.id, id));
+      
+      return res.status(200).json({ message: 'Course deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting typing course:', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
   });
