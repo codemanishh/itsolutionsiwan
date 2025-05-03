@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { 
   Card, 
   CardContent, 
@@ -12,6 +12,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -80,6 +81,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState("messages");
   const [certificateToEdit, setCertificateToEdit] = useState<Certificate | null>(null);
   const [certificateIdToDelete, setCertificateIdToDelete] = useState<number | null>(null);
+  const [expandedMessageIds, setExpandedMessageIds] = useState<number[]>([]);
   const { toast } = useToast();
   
   // Form state for new certificate
@@ -328,6 +330,15 @@ export default function Admin() {
     const newStatus = currentStatus === 'open' ? 'closed' : 'open';
     updateMessageStatusMutation.mutate({ id, status: newStatus });
   };
+  
+  // Toggle message expansion
+  const toggleMessageExpansion = (id: number) => {
+    setExpandedMessageIds(prev => 
+      prev.includes(id) 
+        ? prev.filter(messageId => messageId !== id) 
+        : [...prev, id]
+    );
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -382,44 +393,75 @@ export default function Admin() {
                     </TableHeader>
                     <TableBody>
                       {messages.map((message) => (
-                        <TableRow key={message.id}>
-                          <TableCell>
-                            {formatDate(message.createdAt)}
-                          </TableCell>
-                          <TableCell>{message.name || "N/A"}</TableCell>
-                          <TableCell>{message.phone || "N/A"}</TableCell>
-                          <TableCell>{message.email || "N/A"}</TableCell>
-                          <TableCell>{message.course || "N/A"}</TableCell>
-                          <TableCell className="max-w-xs truncate">{message.message || "N/A"}</TableCell>
-                          <TableCell>
-                            <Badge 
-                              variant={message.status === 'open' ? 'default' : 'destructive'}
-                              className={message.status === 'open' ? 'bg-green-500' : 'bg-red-500'}
-                            >
-                              {message.status === 'open' ? 'Open' : 'Closed'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => toggleMessageStatus(message.id, message.status)}
-                                disabled={updateMessageStatusMutation.isPending}
+                        <React.Fragment key={message.id}>
+                          <TableRow>
+                            <TableCell>
+                              {formatDate(message.createdAt)}
+                            </TableCell>
+                            <TableCell>{message.name || "N/A"}</TableCell>
+                            <TableCell>{message.phone || "N/A"}</TableCell>
+                            <TableCell>{message.email || "N/A"}</TableCell>
+                            <TableCell>{message.course || "N/A"}</TableCell>
+                            <TableCell className="max-w-xs">
+                              <div className="flex items-center space-x-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-6 w-6 p-0"
+                                  onClick={() => toggleMessageExpansion(message.id)}
+                                >
+                                  {expandedMessageIds.includes(message.id) 
+                                    ? <ChevronUp className="h-4 w-4" /> 
+                                    : <ChevronDown className="h-4 w-4" />
+                                  }
+                                </Button>
+                                <span className={expandedMessageIds.includes(message.id) ? "" : "truncate"}>
+                                  {message.message || "N/A"}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant={message.status === 'open' ? 'default' : 'destructive'}
+                                className={message.status === 'open' ? 'bg-green-500' : 'bg-red-500'}
                               >
-                                {message.status === 'open' ? 'Close' : 'Open'}
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => deleteMessageMutation.mutate(message.id)}
-                                disabled={deleteMessageMutation.isPending}
-                              >
-                                Delete
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
+                                {message.status === 'open' ? 'Open' : 'Closed'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => toggleMessageStatus(message.id, message.status)}
+                                  disabled={updateMessageStatusMutation.isPending}
+                                >
+                                  {message.status === 'open' ? 'Close' : 'Open'}
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => deleteMessageMutation.mutate(message.id)}
+                                  disabled={deleteMessageMutation.isPending}
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                          
+                          {/* Expanded message view */}
+                          {expandedMessageIds.includes(message.id) && (
+                            <TableRow>
+                              <TableCell colSpan={8} className="bg-muted/50 px-4 py-3">
+                                <div className="bg-white dark:bg-gray-800 rounded-md p-4 shadow-sm">
+                                  <h4 className="font-semibold mb-2">Full Message:</h4>
+                                  <p className="whitespace-pre-wrap">{message.message}</p>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
                       ))}
                     </TableBody>
                   </Table>
