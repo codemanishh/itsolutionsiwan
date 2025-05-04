@@ -1,6 +1,14 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not defined in the environment variables.");
+}
 
 const app = express();
 app.use(express.json());
